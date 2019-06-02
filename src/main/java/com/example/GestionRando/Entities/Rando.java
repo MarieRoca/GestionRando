@@ -28,7 +28,7 @@ public class Rando {
         PLAN, //en cours de vote
         SONDAGE_CLOS, //Cloturee le TL a choisi une date
         ORGA_CLOS, //Cloturee plus personne peut s'inscrire
-        PASSEE
+        ANNULEE
     };
     
     private Statut statut;

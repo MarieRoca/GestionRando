@@ -39,7 +39,7 @@ public class GestionRandonnee {
     @Autowired
     RandoRepo rr;
     
-    int taille = 15;
+    int nbPlacesRando = 15;
     
     //Créer rando
     public void creerRando(String titre, float niveau, Date date1, Date date2, Date date3, Membre teamLeader, String lieu, float dist, float cf, float cv){
@@ -110,7 +110,7 @@ public class GestionRandonnee {
         Iterator randos = rr.findAll().iterator();
         Rando rCourant = new Rando();
         while (randos.hasNext()){
-            if(rCourant.getNiveau() <= niveau && rCourant.getParticipants().size() <= this.taille && rCourant.getStatut() != Statut.ORGA_CLOS && rCourant.getStatut() != Statut.PASSEE)
+            if(rCourant.getNiveau() <= niveau && rCourant.getParticipants().size() <= this.nbPlacesRando && rCourant.getStatut() != Statut.ORGA_CLOS && rCourant.getStatut() != Statut.ANNULEE)
                 randoDispo.add(rCourant);  
             rCourant = (Rando) randos.next();
         }
@@ -122,6 +122,17 @@ public class GestionRandonnee {
     //il faut que la date soit pas passée
     //tester budget cf + nb membre * cv < tresorerie
     //oui debit non annulée
+    public void cloturer(Long idRando){
+        Rando r = (Rando) rr.findById(idRando).get();
+        float coutRando = r.getCf() + r.getParticipants().size() * r.getCv();
+        if(r.getStatut() == Statut.SONDAGE_CLOS){
+            if(r.getVote()[0].getDate().after(new Date()) && estCoutValide(coutRando)){
+                r.setStatut(Statut.ORGA_CLOS);
+                debitTresorerie(coutRando);
+            }else
+                r.setStatut(Statut.ANNULEE);
+        }   
+    }
     
     //Stats
     //Total d’en-cours budgétaire
@@ -191,7 +202,21 @@ public class GestionRandonnee {
         return response.readEntity(Float.class);
     }
     
-    
-    
+    public boolean debitTresorerie(float coutRando){
+        //débite le cout de la rando de la trésorerie
+        // URI locale
+        String uri = "http://127.0.0.1:5050/";
+        
+        Client client = ClientBuilder.newClient();
+        WebTarget wt = client.target(uri + "&q=" + coutRando);
+        //WebTarget wt = client.target(uri);
+
+        //Invocation.Builder invocationBuilder = wt.request(MediaType.TEXT_PLAIN);
+        Invocation.Builder test = wt.request();
+        Response response = test.get();
+        
+        //String reponse = response.readEntity(String.class);
+        return response.readEntity(Boolean.class);
+    }
     
 }
