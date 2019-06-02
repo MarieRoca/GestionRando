@@ -128,4 +128,14 @@ public class Rando {
     public void setStatut(Statut statut) {
         this.statut = statut;
     }
+
+    public Membre getTeamLeader() {
+        return teamLeader;
+    }
+
+    public void setTeamLeader(Membre teamLeader) {
+        this.teamLeader = teamLeader;
+    }
+    
+    
 }

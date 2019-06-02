@@ -103,7 +103,7 @@ public class GestionRandonnee {
     public ArrayList<Rando> RandoDispo(Membre m){
         //lister les randos dispo pour un membre en fonction de son niveau, 
         //du nb de place restantes, et du fait qu'elle soit dispo et pas 
-        //passée => statut pas ORGA_CLOS, pas PASSEE
+        //passée => statut pas ORGA_CLOS, pas ANNULEE
         
         float niveau = getMembreNiveau(m);
         ArrayList<Rando> randoDispo = new ArrayList<Rando>();
@@ -115,6 +115,36 @@ public class GestionRandonnee {
             rCourant = (Rando) randos.next();
         }
         return randoDispo;
+    }
+    
+    //Rando où on est TL peu importe le statut de la rando
+    public ArrayList<Rando> RandoTL(Membre m){
+        ArrayList<Rando> randoTL = new ArrayList<Rando>();
+        Iterator randos = rr.findAll().iterator();
+        Rando rCourant = new Rando();
+        while (randos.hasNext()){
+            if(rCourant.getTeamLeader().equals(m))
+                randoTL.add(rCourant);  
+            rCourant = (Rando) randos.next();
+        }
+        return randoTL;
+    }
+    
+    //Rando où on a voté peu importe le statut de la rando
+    public ArrayList<Rando> RandoVote(Membre m){
+        ArrayList<Rando> randoVote = new ArrayList<Rando>();
+        Iterator randos = rr.findAll().iterator();
+        Rando rCourant = new Rando();
+
+        while (randos.hasNext()){
+            for(Vote v : rCourant.getVote()){
+                if(v.getVotants().contains(m))
+                    randoVote.add(rCourant);  
+                break;
+            }
+            rCourant = (Rando) randos.next();
+        }
+        return randoVote;
     }
     
     //Cloturer l'orga
