@@ -7,6 +7,8 @@ package com.example.GestionRando.Entities;
 
 import java.util.ArrayList;
 import java.util.Date;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -17,7 +19,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection="Rando")
 public class Vote {
     @Id
-    Long id;
+    String id;
     Date date;
     ArrayList<Membre> votants;
     
@@ -30,7 +32,7 @@ public class Vote {
         this.votants = new ArrayList<Membre>();
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

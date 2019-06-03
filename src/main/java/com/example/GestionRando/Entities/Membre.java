@@ -12,20 +12,20 @@ import org.springframework.data.mongodb.core.mapping.Document;
  *
  * @author marieroca
  */
-@Document(collection="Rando")
+@Document(collection="Membre")
 public class Membre {
     @Id
-    Long idMembre;
+    String idMembre;
 
-    public Membre(Long id) {
+    public Membre(String id) {
         this.idMembre = id;
     }
 
     public Membre() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public Long getIdMembre() {
+    public String getIdMembre() {
         return idMembre;
     }
     
