@@ -26,8 +26,8 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
 /**
- *
- * @author marieroca
+ * Classe permettant de gérer les randonnées de l'association
+ * @author Emma/Hugo/Marie
  */
 @Service
 public class GestionRandonnee {
@@ -55,8 +55,7 @@ public class GestionRandonnee {
      * @param cv Coûts Variables (correspond au coût par participant) de la randonnée
      */
     public void creerRando(String titre, float niveau, Date date1, Date date2, Date date3, Membre teamLeader, String lieu, float dist, float cf, float cv){
-        //Récupérer niveau du membre TL
-        //Vérifier niveau 1,5x supérieur à distance getRando
+        //Vérification TL niveau 1,5x supérieur à distance getRando & Coût fixe bien inférieur au budget de l'asso
         if(estTeamLeaderApte(dist, teamLeader) && estCoutValide(cf)){
             //je créé ma rando
             Rando r = new Rando(titre, niveau, date1, date2, date3, teamLeader, lieu, dist, cf, cv);
@@ -77,9 +76,16 @@ public class GestionRandonnee {
         Vote v = (Vote) vr.findById(idDate).get();
         ArrayList<Membre> votants = v.getVotants();
         votants.add(jeanClaude);
-        //je teste si jean claude a pas déjà voté pour cette rando
-        if(!r.getVote()[0].getVotants().contains(jeanClaude) && !r.getVote()[1].getVotants().contains(jeanClaude) && !r.getVote()[2].getVotants().contains(jeanClaude))
+        
+        //Est-ce que jean claude a déjà voté pour cette randonnée ?
+        boolean aVote = false;
+        for(Vote vCourant : r.getVote())
+            if(vCourant.getVotants().contains(jeanClaude))
+                aVote = true;
+        //S'il a pas déjà voté, on prend son vote
+        if(!aVote)
             v.setVotants(votants);
+        
         vr.save(v);
     }
     
@@ -96,15 +102,18 @@ public class GestionRandonnee {
     public void cloturerSondage(String idRando, Long idDate){
         Rando r = (Rando) rr.findById(idRando).get();
         Vote v = (Vote) vr.findById(idDate).get();
-        Vote[] votes = r.getVote();
+        ArrayList<Vote> votes = r.getVote();
         int i = 0;
-        while(!votes[i].equals(v) && i < votes.length){
-            i++;
-        }
-        v = votes[i];
-        r.setParticipants(v.getVotants());
-        votes = new Vote[0];
-        votes[0] = v;
+        
+        for(Vote vCourant : r.getVote())
+            if(vCourant.equals(v)){
+                r.setParticipants(v.getVotants());
+            }else{
+                votes.remove(vCourant);
+            }
+        
+        r.setVote(votes);
+                
         r.setStatut(Statut.SONDAGE_CLOS);
         rr.save(r);
     }
@@ -221,13 +230,20 @@ public class GestionRandonnee {
     public void cloturer(String idRando){
         Rando r = (Rando) rr.findById(idRando).get();
         float coutRando = r.getCf() + r.getParticipants().size() * r.getCv();
+        
+        Vote v = new Vote();
+        for(Vote vCourant : r.getVote())
+            v = vCourant;
+        
         if(r.getStatut() == Statut.SONDAGE_CLOS){
-            if(r.getVote()[0].getDate().after(new Date()) && estCoutValide(coutRando)){
+            if(v.getDate().after(new Date()) && estCoutValide(coutRando)){
                 r.setStatut(Statut.ORGA_CLOS);
                 debitTresorerie(coutRando);
             }else
                 r.setStatut(Statut.ANNULEE);
         }   
+        
+        rr.save(r);
     }
     
     //Stats
@@ -235,7 +251,13 @@ public class GestionRandonnee {
     //Total du coût des randonnées
     
     
-    public boolean estCoutValide(float coutFixe){
+    /**
+     * Appel REST qui nous permet de savoir si le coût d'une randonnée rentre bien dans
+     * le budget de l'association
+     * @param cout Coût d'une randonnée (Coût fixe à la création et Coût fixe + coûts variables à la cloture)
+     * @return True si le coût rentre dans le budget de l'association
+     */
+    public boolean estCoutValide(float cout){
         //tester si le budget de l'asso est bien supérieur au cout de la rando
         //on récupère le budget de l'asso
         //Une randonnée ne peut être créée que si son coût fixe est inférieur au budget de l’association.
@@ -257,34 +279,27 @@ public class GestionRandonnee {
         reponse = 10000;
         
         //tester supérieur au cout
-        return reponse >= coutFixe;
+        return reponse >= cout;
     }
     
+    /**
+     * Méthode qui nous permet de savoir si un membre est un Team Leader apte pour une randonnée
+     * Le team leader d'une randonnée doit avoir un niveau à minima 1,5* supérieur à la 
+     * distance de la randonnée
+     * @param distanceRando Distance de la randonnée
+     * @param jeanClaude Membre pour qui il faut vérifier s'il est apte à être team leader
+     * @return 
+     */
     public boolean estTeamLeaderApte(float distanceRando, Membre jeanClaude){
         //tester si le niveau du TL est bien au moins 1,5x supérieur à la distance de la rando
-        //on récupère le niveau du Team Leader
-        
-        //Une randonnée ne peut être créé que par un Team Leader « apte ». Il doit disposer d’un niveau 1,5 fois supérieur à la distance de la randonnée.
-        // URI locale
-        String uri = "http://127.0.0.1:5050/";
-        
-        Client client = ClientBuilder.newClient();
-        WebTarget wt = client.target(uri + "&q=" + jeanClaude.getIdMembre());
-        //WebTarget wt = client.target(uri);
-
-        //Invocation.Builder invocationBuilder = wt.request(MediaType.TEXT_PLAIN);
-        Invocation.Builder test = wt.request();
-        Response response = test.get();
-        
-        //String reponse = response.readEntity(String.class);
-        float reponse = response.readEntity(Float.class);
-        //@ToDelete
-        reponse = 10000;
-        
-        //tester 1,5 * supérieur à la distance
-        return reponse*(1.5) >= distanceRando;
+        return getMembreNiveau(jeanClaude)*(1.5) >= distanceRando;
     }
     
+    /**
+     * Appel REST qui nous retourne le niveau d'un membre
+     * @param jeanClaude Membre pour qui on souhaite connaitre le niveau
+     * @return Un décimal représentant le niveau du membre
+     */
     public float getMembreNiveau(Membre jeanClaude){
         //pour tests
         
@@ -305,10 +320,15 @@ public class GestionRandonnee {
         return response.readEntity(Float.class);
         */
         
-        return 15.5F;
-        
+        return 15.5F;    
     }
     
+    /**
+     * Appel REST permettant de débiter la trésorerie de l'association
+     * @param coutRando Montant à débiter (coût de la randonnée)
+     * @return 
+     */
+    //peut etre changer en void on s'en ballek du retour nan ??
     public boolean debitTresorerie(float coutRando){
         //débite le cout de la rando de la trésorerie
         // URI locale

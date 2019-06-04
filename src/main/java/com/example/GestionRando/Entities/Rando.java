@@ -22,7 +22,7 @@ public class Rando {
     String id;
     String titre, lieu;
     float niveau, cv, cf, dist;
-    Vote[] vote;
+    ArrayList<Vote> vote;
     ArrayList<Membre> participants;
     Membre teamLeader;
 
@@ -46,10 +46,10 @@ public class Rando {
         this.cv = cv;
         this.cf = cf;
         this.niveau = niveau;
-        this.vote = new Vote[3];
-        this.vote[0] = new Vote(date1);
-        this.vote[1] = new Vote(date2);
-        this.vote[2] = new Vote(date3);
+        this.vote = new ArrayList<Vote>();
+        this.vote.add(new Vote(date1));
+        this.vote.add(new Vote(date2));
+        this.vote.add(new Vote(date3));
         this.statut = Statut.PLAN;
         this.participants = new ArrayList<Membre>();
         this.teamLeader = teamLeader;
@@ -107,11 +107,11 @@ public class Rando {
         this.niveau = niveau;
     }
 
-    public Vote[] getVote() {
+    public ArrayList<Vote> getVote() {
         return vote;
     }
 
-    public void setVote(Vote[] vote) {
+    public void setVote(ArrayList<Vote> vote) {
         this.vote = vote;
     }
 

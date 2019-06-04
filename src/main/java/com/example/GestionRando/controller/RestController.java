@@ -7,8 +7,11 @@ package com.example.GestionRando.controller;
 
 import com.example.GestionRando.Entities.Membre;
 import com.example.GestionRando.Entities.Rando;
+import com.example.GestionRando.Entities.Vote;
 import com.example.GestionRando.services.GestionRandonnee;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,8 +30,9 @@ public class RestController {
     
     //RANDO
     @RequestMapping(value="/create", method = RequestMethod.POST)
-    public void createRando (@RequestBody Rando randoACree ){
-        gr.creerRando(randoACree.getTitre(), randoACree.getNiveau(), randoACree.getVote()[0].getDate(), randoACree.getVote()[1].getDate(), randoACree.getVote()[2].getDate(),randoACree.getTeamLeader(), randoACree.getLieu(), randoACree.getCf(), randoACree.getCv(), randoACree.getDist());
+    public void createRando (@RequestBody Rando randoACree){
+        Iterator votes = randoACree.getVote().iterator();
+        gr.creerRando(randoACree.getTitre(), randoACree.getNiveau(), ((Vote) votes.next()).getDate(), ((Vote) votes.next()).getDate(), ((Vote) votes.next()).getDate(),randoACree.getTeamLeader(), randoACree.getLieu(), randoACree.getCf(), randoACree.getCv(), randoACree.getDist());
     }
     
     //RANDO
