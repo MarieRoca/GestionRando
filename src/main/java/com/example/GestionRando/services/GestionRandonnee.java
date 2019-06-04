@@ -23,7 +23,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
@@ -45,7 +44,7 @@ public class GestionRandonnee {
     /**
      * Création d'un randonnée au sein de l'application Va Marcher
      * @param titre Titre de la randonnée
-     * @param niveau niveau cible de la randonnée
+     * @param niveau Niveau cible de la randonnée
      * @param date1 Date proposée pour le vote 1
      * @param date2 Date proposée pour le vote 2
      * @param date3 Date proposée pour le vote 3
@@ -149,7 +148,7 @@ public class GestionRandonnee {
         float niveau = getMembreNiveau(jeanClaude);
         ArrayList<Rando> randoDispo = new ArrayList<Rando>();
         Iterator randos = rr.findAll().iterator();
-        Rando rCourant = new Rando();
+        Rando rCourant;
         while (randos.hasNext()){
             rCourant = (Rando) randos.next();
             if(rCourant.getNiveau() <= niveau && rCourant.getParticipants().size() <= this.nbPlacesRando && rCourant.getStatut() != Statut.ORGA_CLOS && rCourant.getStatut() != Statut.ANNULEE)
@@ -176,7 +175,7 @@ public class GestionRandonnee {
     public ArrayList<Rando> randoTL(Membre jeanClaude){
         ArrayList<Rando> randoTL = new ArrayList<Rando>();
         Iterator randos = rr.findAll().iterator();
-        Rando rCourant = new Rando();
+        Rando rCourant;
         while (randos.hasNext()){
             rCourant = (Rando) randos.next();
             if(rCourant.getTeamLeader().getIdMembre().equals(jeanClaude.getIdMembre()))
@@ -194,8 +193,7 @@ public class GestionRandonnee {
     public ArrayList<Rando> randoVote(Membre jeanClaude){
         ArrayList<Rando> randoVote = new ArrayList<Rando>();
         Iterator randos = rr.findAll().iterator();
-        Rando rCourant = new Rando();
-
+        Rando rCourant;
         while (randos.hasNext()){
             rCourant = (Rando) randos.next();
             for(Vote v : rCourant.getVote()){
