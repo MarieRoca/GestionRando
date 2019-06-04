@@ -12,6 +12,6 @@ import org.springframework.data.repository.CrudRepository;
  *
  * @author marieroca
  */
-public interface MembreRepo extends CrudRepository<Membre, Long> {
+public interface MembreRepo extends CrudRepository<Membre, String> {
     
 }

@@ -12,6 +12,6 @@ import org.springframework.data.repository.CrudRepository;
  *
  * @author marieroca
  */
-public interface RandoRepo extends CrudRepository<Rando, Long> {
+public interface RandoRepo extends CrudRepository<Rando, String> {
     
 }

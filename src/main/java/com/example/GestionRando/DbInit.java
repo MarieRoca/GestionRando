@@ -38,18 +38,23 @@ public class DbInit implements CommandLineRunner {
         this.mr.deleteAll();
         this.rr.deleteAll();
         this.vr.deleteAll();
-        String id = "caca";
         float niveau = 10;
         float f = 2;
         
         Date v1 = new Date();
         Date v2 = new Date();
         Date v3 = new Date();
-        Membre m1 = new Membre(id);
+        Membre m1 = new Membre("caca");
+        Membre m2 = new Membre("pipi");
         Rando r1 = new Rando("Rando1", niveau,v1, v2, v3, m1,"", f,f, f);
+        Rando r2 = new Rando("Rando2", niveau,v1, v2, v3, m1,"", f,f, f);
+        Rando r3 = new Rando("Rando3", 5000,v1, v2, v3, m2,"", f,f, f);
         
         this.mr.save(m1);
+        this.mr.save(m2);
         this.rr.save(r1);
+        this.rr.save(r2);
+        this.rr.save(r3);
         
         System.out.println(" -- Database has been initialized");
     }

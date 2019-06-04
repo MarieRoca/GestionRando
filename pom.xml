@@ -13,12 +13,12 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>GestionRando</name>
 	<description>Demo project for Spring Boot</description>
-        <repositories>
+        <!--<repositories>
             <repository>
                 <id>localrepository</id>
                 <url>file://${basedir}/repo</url>
             </repository>
-        </repositories>
+        </repositories>-->
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
@@ -32,10 +32,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-rest</artifactId>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -51,11 +51,11 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-                <dependency>
+                <!--<dependency>
                         <groupId>com</groupId>
 			<artifactId>mongo-java-driver</artifactId>
                         <version>3.3.0</version>
-		</dependency>
+		</dependency>-->
 	 <dependency>
 	  <groupId>javax</groupId>
 	  <artifactId>javaee-web-api</artifactId>

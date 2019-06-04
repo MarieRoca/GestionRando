@@ -42,6 +42,19 @@ public class GestionRandonnee {
     int nbPlacesRando = 15;
     
     //Créer rando
+    /**
+     * Création d'un randonnée au sein de l'application Va Marcher
+     * @param titre Titre de la randonnée
+     * @param niveau A delete
+     * @param date1 Date proposée pour le vote 1
+     * @param date2 Date proposée pour le vote 2
+     * @param date3 Date proposée pour le vote 3
+     * @param teamLeader Team Leader en charge de la randonnée
+     * @param lieu Lieu de la randonnée
+     * @param dist Distance de la randonnée
+     * @param cf Coûts Fixes de la randonnée
+     * @param cv Coûts Variables (correspond au coût par participant) de la randonnée
+     */
     public void creerRando(String titre, float niveau, Date date1, Date date2, Date date3, Membre teamLeader, String lieu, float dist, float cf, float cv){
         //Récupérer niveau du membre TL
         //Vérifier niveau 1,5x supérieur à distance Rando
@@ -54,7 +67,13 @@ public class GestionRandonnee {
     
     //Voter
     //Normalement test avec RandoDispo()
-    public void voter(Membre jeanClaude, long idDate, long idRando){
+    /**
+     * Méthode permettant à un membre de voter pour une date pour une randonnée
+     * @param jeanClaude Membre qui vote pour une date pour la randonnée
+     * @param idDate Date pour laquelle le membre vote pour la randonnée
+     * @param idRando Randonnée pour laquelle le membre choisi une date
+     */
+    public void voter(Membre jeanClaude, Long idDate, String idRando){
         Rando r = (Rando) rr.findById(idRando).get();
         Vote v = (Vote) vr.findById(idDate).get();
         ArrayList<Membre> votants = v.getVotants();
@@ -68,7 +87,14 @@ public class GestionRandonnee {
     //Confirmer
     //Le TL choisis la date, les membres l'ayant choisi sont de facto inscris
     //Statut clos
-    public void cloturerSondage(long idRando, long idDate){
+    /**
+     * Méthode permettant de cloturer un sondage : le statut de la randonnée passe à "Sondage Clos"
+     * Aucun membre ne peut encore voter, les membres ayant voté pour la date choisie sont inscris
+     * automatiquements
+     * @param idRando Identifiant de la randonnée pour laquelle le TeamLeader cloture le vote
+     * @param idDate Identifiant du vote (donc la date) que le TeamLeader a choisi
+     */
+    public void cloturerSondage(String idRando, Long idDate){
         Rando r = (Rando) rr.findById(idRando).get();
         Vote v = (Vote) vr.findById(idDate).get();
         Vote[] votes = r.getVote();
@@ -86,7 +112,7 @@ public class GestionRandonnee {
     
     //S'inscrire lorsqu'une date est déjà chosisie par le TL + statut clos
     //Normalement test avec RandoDispo()
-    public void inscrire(long idRando, long idMembre){
+    public void inscrire(String idRando, String idMembre){
         Membre m = (Membre) mr.findById(idMembre).get();
         Rando r = (Rando) rr.findById(idRando).get();
         //test rando statut
@@ -110,11 +136,16 @@ public class GestionRandonnee {
         Iterator randos = rr.findAll().iterator();
         Rando rCourant = new Rando();
         while (randos.hasNext()){
+            rCourant = (Rando) randos.next();
             if(rCourant.getNiveau() <= niveau && rCourant.getParticipants().size() <= this.nbPlacesRando && rCourant.getStatut() != Statut.ORGA_CLOS && rCourant.getStatut() != Statut.ANNULEE)
                 randoDispo.add(rCourant);  
-            rCourant = (Rando) randos.next();
         }
         return randoDispo;
+    }
+    
+    //Afficher une rando
+    public Rando Rando(String id){
+        return (Rando) rr.findById(id).get();
     }
     
     //Rando où on est TL peu importe le statut de la rando
@@ -123,9 +154,9 @@ public class GestionRandonnee {
         Iterator randos = rr.findAll().iterator();
         Rando rCourant = new Rando();
         while (randos.hasNext()){
-            if(rCourant.getTeamLeader().equals(m))
-                randoTL.add(rCourant);  
             rCourant = (Rando) randos.next();
+            if(rCourant.getTeamLeader().getIdMembre().equals(m.getIdMembre()))
+                randoTL.add(rCourant);
         }
         return randoTL;
     }
@@ -137,12 +168,12 @@ public class GestionRandonnee {
         Rando rCourant = new Rando();
 
         while (randos.hasNext()){
+            rCourant = (Rando) randos.next();
             for(Vote v : rCourant.getVote()){
                 if(v.getVotants().contains(m))
                     randoVote.add(rCourant);  
                 break;
             }
-            rCourant = (Rando) randos.next();
         }
         return randoVote;
     }
@@ -152,7 +183,7 @@ public class GestionRandonnee {
     //il faut que la date soit pas passée
     //tester budget cf + nb membre * cv < tresorerie
     //oui debit non annulée
-    public void cloturer(Long idRando){
+    public void cloturer(String idRando){
         Rando r = (Rando) rr.findById(idRando).get();
         float coutRando = r.getCf() + r.getParticipants().size() * r.getCv();
         if(r.getStatut() == Statut.SONDAGE_CLOS){
@@ -187,6 +218,8 @@ public class GestionRandonnee {
         
         //String reponse = response.readEntity(String.class);
         float reponse = response.readEntity(Float.class);
+        //@ToDelete
+        reponse = 10000;
         
         //tester supérieur au cout
         return reponse >= coutFixe;
@@ -210,12 +243,17 @@ public class GestionRandonnee {
         
         //String reponse = response.readEntity(String.class);
         float reponse = response.readEntity(Float.class);
+        //@ToDelete
+        reponse = 10000;
         
         //tester 1,5 * supérieur à la distance
         return reponse*(1.5) >= distanceRando;
     }
     
     public float getMembreNiveau(Membre jeanClaude){
+        //pour tests
+        
+        /*
         //retourne le niveau du membre
         // URI locale
         String uri = "http://127.0.0.1:5050/";
@@ -230,6 +268,10 @@ public class GestionRandonnee {
         
         //String reponse = response.readEntity(String.class);
         return response.readEntity(Float.class);
+        */
+        
+        return 15.5F;
+        
     }
     
     public boolean debitTresorerie(float coutRando){

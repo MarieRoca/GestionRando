@@ -18,9 +18,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
  */
 @Document(collection="Rando")
 public class Vote {
-    @Id
-    String id;
+    
+    
+    private static final long serialVersionUID = 1L;
+    @javax.persistence.Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    
     Date date;
+    
     ArrayList<Membre> votants;
     
     public Vote() {
@@ -32,7 +38,7 @@ public class Vote {
         this.votants = new ArrayList<Membre>();
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
