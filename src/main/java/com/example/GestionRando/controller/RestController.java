@@ -52,26 +52,26 @@ public class RestController {
     //RANDO / get des rando où l'on peut s'incrire : ouverte à l'inscription et à notre niveau / OK
     @RequestMapping(value="/dispo", method = RequestMethod.GET)
     public ArrayList<Rando> randoDispo (@RequestBody Membre membre){
-       return gr.RandoDispo(membre);
+       return gr.randoDispo(membre);
     }
     
     //RANDO / get rando où on est TL / OK
     @RequestMapping(value="/teamleader", method = RequestMethod.GET)
     public ArrayList<Rando> randoTL (@RequestBody Membre membre){
         System.out.println("com.example.GestionRando.controller.RestController.randoTL()");
-        return gr.RandoTL(membre);
+        return gr.randoTL(membre);
     }
     
     //RANDO / get rando où on a voté
     @RequestMapping(value="/vote", method = RequestMethod.GET)
     public ArrayList<Rando> randoVote (@RequestBody Membre membre){
-        return gr.RandoVote(membre);
+        return gr.randoVote(membre);
     }
     
     //RANDO / get une rando
     @RequestMapping(value="/{idr}", method = RequestMethod.GET)
     public Rando rando (@PathVariable String idr){
-        return gr.Rando(idr);
+        return gr.getRando(idr);
     }
     
     //RANDO 

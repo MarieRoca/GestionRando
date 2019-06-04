@@ -45,7 +45,7 @@ public class GestionRandonnee {
     /**
      * Création d'un randonnée au sein de l'application Va Marcher
      * @param titre Titre de la randonnée
-     * @param niveau A delete
+     * @param niveau niveau cible de la randonnée
      * @param date1 Date proposée pour le vote 1
      * @param date2 Date proposée pour le vote 2
      * @param date3 Date proposée pour le vote 3
@@ -57,7 +57,7 @@ public class GestionRandonnee {
      */
     public void creerRando(String titre, float niveau, Date date1, Date date2, Date date3, Membre teamLeader, String lieu, float dist, float cf, float cv){
         //Récupérer niveau du membre TL
-        //Vérifier niveau 1,5x supérieur à distance Rando
+        //Vérifier niveau 1,5x supérieur à distance getRando
         if(estTeamLeaderApte(dist, teamLeader) && estCoutValide(cf)){
             //je créé ma rando
             Rando r = new Rando(titre, niveau, date1, date2, date3, teamLeader, lieu, dist, cf, cv);
@@ -66,7 +66,7 @@ public class GestionRandonnee {
     }
     
     //Voter
-    //Normalement test avec RandoDispo()
+    //Normalement test avec randoDispo()
     /**
      * Méthode permettant à un membre de voter pour une date pour une randonnée
      * @param jeanClaude Membre qui vote pour une date pour la randonnée
@@ -111,7 +111,13 @@ public class GestionRandonnee {
     }
     
     //S'inscrire lorsqu'une date est déjà chosisie par le TL + statut clos
-    //Normalement test avec RandoDispo()
+    //Normalement test avec randoDispo()
+    /**
+     * Méthode permettant de s'inscrire. Cette action n'est possible que si le Team Leader
+     * a cloturé le sondage et qu'il a donc choisi une date, et que la randonnée n'est pas passée.
+     * @param idRando Identifiant de la randonnée auquel le membre veut s'inscrire
+     * @param idMembre Identifiant du membre souhaitant s'inscrire à la randonnée
+     */
     public void inscrire(String idRando, String idMembre){
         Membre m = (Membre) mr.findById(idMembre).get();
         Rando r = (Rando) rr.findById(idRando).get();
@@ -126,12 +132,21 @@ public class GestionRandonnee {
     }
     
     //Rando dispo
-    public ArrayList<Rando> RandoDispo(Membre m){
+    /**
+     * Méthode permettant de lister les randonnées disponibles pour un membre. 
+     * Une randonnée est disponible si :
+     * * le membre a un niveau suffisant pour participer
+     * * il reste des places
+     * * le statut de la randonnée est "en planification" ou "sondage clos"
+     * @param jeanClaude Membre souhaitant avoir la liste des randos dispo
+     * @return ArrayList des randonnées disponibles
+     */
+    public ArrayList<Rando> randoDispo(Membre jeanClaude){
         //lister les randos dispo pour un membre en fonction de son niveau, 
         //du nb de place restantes, et du fait qu'elle soit dispo et pas 
         //passée => statut pas ORGA_CLOS, pas ANNULEE
         
-        float niveau = getMembreNiveau(m);
+        float niveau = getMembreNiveau(jeanClaude);
         ArrayList<Rando> randoDispo = new ArrayList<Rando>();
         Iterator randos = rr.findAll().iterator();
         Rando rCourant = new Rando();
@@ -143,26 +158,40 @@ public class GestionRandonnee {
         return randoDispo;
     }
     
-    //Afficher une rando
-    public Rando Rando(String id){
+    /**
+     * Méthode permettant de retourner une randonnée à partir de son identifiant
+     * @param id Identifiant de la randonnée
+     * @return La randonnée
+     */
+    public Rando getRando(String id){
         return (Rando) rr.findById(id).get();
     }
     
     //Rando où on est TL peu importe le statut de la rando
-    public ArrayList<Rando> RandoTL(Membre m){
+    /**
+     * Méthode permettant de lister les randonnées pour lesquelles un membre est team leader. 
+     * @param jeanClaude Membre souhaitant avoir la liste des randonnées pour lesquelles il est team leader
+     * @return ArrayList des randonnées pour lesquelles le membre est team leader
+     */
+    public ArrayList<Rando> randoTL(Membre jeanClaude){
         ArrayList<Rando> randoTL = new ArrayList<Rando>();
         Iterator randos = rr.findAll().iterator();
         Rando rCourant = new Rando();
         while (randos.hasNext()){
             rCourant = (Rando) randos.next();
-            if(rCourant.getTeamLeader().getIdMembre().equals(m.getIdMembre()))
+            if(rCourant.getTeamLeader().getIdMembre().equals(jeanClaude.getIdMembre()))
                 randoTL.add(rCourant);
         }
         return randoTL;
     }
     
     //Rando où on a voté peu importe le statut de la rando
-    public ArrayList<Rando> RandoVote(Membre m){
+    /**
+     * Méthode permettant de lister les randonnées pour lesquelles le membre a voté. 
+     * @param jeanClaude Membre souhaitant avoir la liste des randonnées pour lesquelles il a voté
+     * @return ArrayList des randonnées pour lesquelles le membre a voté
+     */
+    public ArrayList<Rando> randoVote(Membre jeanClaude){
         ArrayList<Rando> randoVote = new ArrayList<Rando>();
         Iterator randos = rr.findAll().iterator();
         Rando rCourant = new Rando();
@@ -170,7 +199,7 @@ public class GestionRandonnee {
         while (randos.hasNext()){
             rCourant = (Rando) randos.next();
             for(Vote v : rCourant.getVote()){
-                if(v.getVotants().contains(m))
+                if(v.getVotants().contains(jeanClaude))
                     randoVote.add(rCourant);  
                 break;
             }
@@ -183,6 +212,14 @@ public class GestionRandonnee {
     //il faut que la date soit pas passée
     //tester budget cf + nb membre * cv < tresorerie
     //oui debit non annulée
+    /**
+     * Méthode permettant de cloturer l'organisation de la randonnée.
+     * La cloture n'est possible que si le sondage a été cloturée.
+     * Si la date de la randonnée est passée ou si son coût total (coût fixe + coûts variables)
+     * est supérieur à la trésorerie de l'association, la randonnée est annulée.
+     * Une fois l'organisation close, les membres ne peuvent plus s'inscrire
+     * @param idRando Identifiant de la randonnée à cloturer 
+     */
     public void cloturer(String idRando){
         Rando r = (Rando) rr.findById(idRando).get();
         float coutRando = r.getCf() + r.getParticipants().size() * r.getCv();
