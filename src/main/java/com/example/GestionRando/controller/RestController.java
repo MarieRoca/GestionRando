@@ -28,48 +28,50 @@ public class RestController {
     @Autowired
     GestionRandonnee gr;
     
-    //RANDO
-    @RequestMapping(value="/create", method = RequestMethod.POST)
-    public void createRando (@RequestBody Rando randoACree){
+    //RANDO / ok
+    @RequestMapping(value="/create/{idm}", method = RequestMethod.POST)
+    public void createRando (@RequestBody Rando randoACree, @PathVariable Membre idm){
         Iterator votes = randoACree.getVote().iterator();
-        gr.creerRando(randoACree.getTitre(), randoACree.getNiveau(), ((Vote) votes.next()).getDate(), ((Vote) votes.next()).getDate(), ((Vote) votes.next()).getDate(),randoACree.getTeamLeader(), randoACree.getLieu(), randoACree.getCf(), randoACree.getCv(), randoACree.getDist());
+        gr.creerRando(randoACree.getTitre(), randoACree.getNiveau(), ((Vote) votes.next()).getDate(), ((Vote) votes.next()).getDate(), ((Vote) votes.next()).getDate(),idm, randoACree.getLieu(), randoACree.getCf(), randoACree.getCv(), randoACree.getDist());
     }
     
     //RANDO
     @RequestMapping(value="/{idr}/voter/{idd}", method = RequestMethod.PATCH)
-    public void voter (@RequestBody Membre membre, @PathVariable String idr, @PathVariable Long idd){
+    public void voter (@RequestBody Membre membre, @PathVariable String idd, @PathVariable String idr){
+        System.out.println("com.example.GestionRando.controller.RestController.voter() idd "+idd);
+        System.out.println("com.example.GestionRando.controller.RestController.voter() idr "+idr);
         gr.voter(membre, idd, idr);
     }
     
     //RANDO
     @RequestMapping(value="/{idr}/cloturer/{idd}", method = RequestMethod.PATCH)
-    public void clotSondage (@PathVariable String idr, @PathVariable Long idd){
+    public void clotSondage (@PathVariable String idr, @PathVariable String idd){
         gr.cloturerSondage(idr,idd);
     }
     
     //RANDO
     @RequestMapping(value="/{idr}/inscription", method = RequestMethod.PATCH)
-    public void inscription (@RequestBody Membre membre, @PathVariable Long idr){
-        gr.cloturerSondage(membre.getIdMembre(), idr);
+    public void inscription (@RequestBody Membre membre, @PathVariable String idr){
+        System.out.println("com.example.GestionRando.controller.RestController.inscription()"+idr);
+        gr.inscrire(idr, membre.getIdMembre());
     }
     
     //RANDO / get des rando où l'on peut s'incrire : ouverte à l'inscription et à notre niveau / OK
-    @RequestMapping(value="/dispo", method = RequestMethod.GET)
-    public ArrayList<Rando> randoDispo (@RequestBody Membre membre){
-       return gr.randoDispo(membre);
+    @RequestMapping(value="/dispo/{idm}", method = RequestMethod.GET)
+    public ArrayList<Rando> randoDispo (@PathVariable String idm){
+       return gr.randoDispo(idm);
     }
     
     //RANDO / get rando où on est TL / OK
-    @RequestMapping(value="/teamleader", method = RequestMethod.GET)
-    public ArrayList<Rando> randoTL (@RequestBody Membre membre){
-        System.out.println("com.example.GestionRando.controller.RestController.randoTL()");
-        return gr.randoTL(membre);
+    @RequestMapping(value="/teamleader/{idm}", method = RequestMethod.GET)
+    public ArrayList<Rando> randoTL (@PathVariable String idm){
+        return gr.randoTL(idm);
     }
     
     //RANDO / get rando où on a voté
-    @RequestMapping(value="/vote", method = RequestMethod.GET)
-    public ArrayList<Rando> randoVote (@RequestBody Membre membre){
-        return gr.randoVote(membre);
+    @RequestMapping(value="/vote/{idm}", method = RequestMethod.GET)
+    public ArrayList<Rando> randoVote (@PathVariable String idm){
+        return gr.randoVote(idm);
     }
     
     //RANDO / get une rando

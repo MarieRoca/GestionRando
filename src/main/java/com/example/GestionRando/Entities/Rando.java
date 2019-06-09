@@ -22,6 +22,7 @@ public class Rando {
     String id;
     String titre, lieu;
     float niveau, cv, cf, dist;
+    
     ArrayList<Vote> vote;
     ArrayList<Membre> participants;
     Membre teamLeader;

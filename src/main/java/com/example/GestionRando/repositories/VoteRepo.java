@@ -12,6 +12,6 @@ import org.springframework.data.repository.CrudRepository;
  *
  * @author marieroca
  */
-public interface VoteRepo extends CrudRepository<Vote, Long> {
+public interface VoteRepo extends CrudRepository<Vote, String> {
     
 }

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -18,12 +19,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
  */
 @Document(collection="Rando")
 public class Vote {
-    
-    
-    private static final long serialVersionUID = 1L;
-    @javax.persistence.Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @Id
+    private String id;
     
     Date date;
     
@@ -34,11 +31,12 @@ public class Vote {
     }
     
     public Vote(Date date) {
+        this.id = ""+new ObjectId();
         this.date = date;
         this.votants = new ArrayList<Membre>();
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
