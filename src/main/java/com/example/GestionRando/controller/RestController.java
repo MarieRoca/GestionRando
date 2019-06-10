@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @author marieroca
  */
 @org.springframework.web.bind.annotation.RestController
-@RequestMapping("/rando")
 public class RestController {
     @Autowired
     GestionRandonnee gr;

@@ -63,7 +63,7 @@ public class GestionRandonnee {
         }
         
         //il a le niveau / assez d'argent
-        // si c'est un TL / si il a le certificat
+        //@TODO si c'est un TL / si il a le certificat
     }
     
     //Voter
@@ -119,16 +119,17 @@ public class GestionRandonnee {
      */
     public void cloturerSondage (String idRando, String idDate){
         Rando r = (Rando) rr.findById(idRando).get();
-        Vote v = (Vote) vr.findById(idDate).get();
-        ArrayList<Vote> votes = r.getVote();
-        int i = 0;
-        
-        for(Vote vCourant : r.getVote())
-            if(vCourant.equals(v)){
+        Vote v = new Vote();
+        ArrayList<Vote> votes =  r.getVote();
+
+        for(Vote vCourant : r.getVote()) {
+            if(vCourant.getId().equals(idDate)){
+                v = vCourant;
                 r.setParticipants(v.getVotants());
             }else{
                 votes.remove(vCourant);
             }
+        }
         
         r.setVote(votes);
                 
@@ -317,7 +318,6 @@ public class GestionRandonnee {
      */
     public boolean estTeamLeaderApte(float distanceRando, Membre jeanClaude){
         //tester si le niveau du TL est bien au moins 1,5x supérieur à la distance de la rando
-        
         return getMembreNiveau(jeanClaude)*(1.5) >= distanceRando;
     }
     
