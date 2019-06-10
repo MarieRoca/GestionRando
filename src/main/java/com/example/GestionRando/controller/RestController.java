@@ -35,11 +35,9 @@ public class RestController {
         gr.creerRando(randoACree.getTitre(), randoACree.getNiveau(), ((Vote) votes.next()).getDate(), ((Vote) votes.next()).getDate(), ((Vote) votes.next()).getDate(),idm, randoACree.getLieu(), randoACree.getCf(), randoACree.getCv(), randoACree.getDist());
     }
     
-    //RANDO
+    //RANDO / ok
     @RequestMapping(value="/{idr}/voter/{idd}", method = RequestMethod.PATCH)
     public void voter (@RequestBody Membre membre, @PathVariable String idd, @PathVariable String idr){
-        System.out.println("com.example.GestionRando.controller.RestController.voter() idd "+idd);
-        System.out.println("com.example.GestionRando.controller.RestController.voter() idr "+idr);
         gr.voter(membre, idd, idr);
     }
     
@@ -68,13 +66,13 @@ public class RestController {
         return gr.randoTL(idm);
     }
     
-    //RANDO / get rando où on a voté
+    //RANDO / get rando où on a voté  / ok
     @RequestMapping(value="/vote/{idm}", method = RequestMethod.GET)
     public ArrayList<Rando> randoVote (@PathVariable String idm){
         return gr.randoVote(idm);
     }
     
-    //RANDO / get une rando
+    //RANDO / get une rando / ok
     @RequestMapping(value="/{idr}", method = RequestMethod.GET)
     public Rando rando (@PathVariable String idr){
         return gr.getRando(idr);

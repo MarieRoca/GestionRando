@@ -61,6 +61,9 @@ public class GestionRandonnee {
             Rando r = new Rando(titre, niveau, date1, date2, date3, teamLeader, lieu, dist, cf, cv);
             rr.save(r);
         }
+        
+        //il a le niveau / assez d'argent
+        // si c'est un TL / si il a le certificat
     }
     
     //Voter
@@ -73,10 +76,8 @@ public class GestionRandonnee {
      */
     public void voter(Membre jeanClaude, String idDate, String idRando){
         Rando r = (Rando) rr.findById(idRando).get();
-        System.out.println("com.example.GestionRando.services.GestionRandonnee.voter() r"+r);
         Vote v = new Vote();
         ArrayList<Vote> votes =  r.getVote();
-        System.out.println("com.example.GestionRando.services.GestionRandonnee.voter() votes"+votes);
         for (Vote vCourant : votes){
             if(vCourant.getId().equals(idDate)){
                 v = vCourant;
@@ -86,18 +87,16 @@ public class GestionRandonnee {
         //Est-ce que jean claude a déjà voté pour cette randonnée ?
         boolean aVote = false;
         for(Vote vCour : r.getVote()){
-            System.out.println("com.example.GestionRando.services.GestionRandonnee.voter() vCour.getVotants"+vCour.getVotants());
-            if(vCour.getVotants().contains(jeanClaude)){
-                System.out.println("com.example.GestionRando.services.GestionRandonnee.voter() avote true"+vCour.getVotants());
-                aVote = true;
+            for (Membre m : vCour.getVotants()){
+                if(m.getIdMembre().equals(jeanClaude.getIdMembre())){
+                    aVote = true;
+                }
             }
         }
         //S'il a pas déjà voté, on prend son vote
         if(!aVote){
             ArrayList<Membre> votants = v.getVotants();
             votants.add(jeanClaude);
-            System.out.println("com.example.GestionRando.services.GestionRandonnee.voter() jc "+ jeanClaude.getIdMembre());
-            System.out.println("com.example.GestionRando.services.GestionRandonnee.voter()"+ votants);
         
             votes.remove(v);
             v.setVotants(votants);
@@ -105,7 +104,6 @@ public class GestionRandonnee {
             r.setVote(votes);
         }
         
-        System.out.println("com.example.GestionRando.services.GestionRandonnee.voter()"+ aVote);
         rr.save(r);
     }
     
@@ -222,16 +220,18 @@ public class GestionRandonnee {
      * @return ArrayList des randonnées pour lesquelles le membre a voté
      */
     public ArrayList<Rando> randoVote(String idm){
-        Membre m = (Membre) mr.findById(idm).get();
         ArrayList<Rando> randoVote = new ArrayList<Rando>();
         Iterator randos = rr.findAll().iterator();
         Rando rCourant;
         while (randos.hasNext()){
             rCourant = (Rando) randos.next();
             for(Vote v : rCourant.getVote()){
-                if(v.getVotants().contains(m))
-                    randoVote.add(rCourant);  
-                break;
+                for (Membre m : v.getVotants()){
+                    if(m.getIdMembre().equals(idm)){
+                        randoVote.add(rCourant);
+                        break;
+                    }
+                }
             }
         }
         return randoVote;
@@ -317,6 +317,7 @@ public class GestionRandonnee {
      */
     public boolean estTeamLeaderApte(float distanceRando, Membre jeanClaude){
         //tester si le niveau du TL est bien au moins 1,5x supérieur à la distance de la rando
+        
         return getMembreNiveau(jeanClaude)*(1.5) >= distanceRando;
     }
     
