@@ -40,13 +40,13 @@ public class RestController {
         gr.voter(membre, idd, idr);
     }
     
-    //RANDO
+    //RANDO / ok
     @RequestMapping(value="/{idr}/cloturer/{idd}", method = RequestMethod.PATCH)
     public void clotSondage (@PathVariable String idr, @PathVariable String idd){
         gr.cloturerSondage(idr,idd);
     }
     
-    //RANDO
+    //RANDO /ok
     @RequestMapping(value="/{idr}/inscription", method = RequestMethod.PATCH)
     public void inscription (@RequestBody Membre membre, @PathVariable String idr){
         System.out.println("com.example.GestionRando.controller.RestController.inscription()"+idr);
@@ -77,7 +77,7 @@ public class RestController {
         return gr.getRando(idr);
     }
     
-    //RANDO 
+    //RANDO /ok
     @RequestMapping(value="/{idr}/cloturer", method = RequestMethod.PATCH)
     public void cloturer (@PathVariable String idr){
         gr.cloturer(idr);

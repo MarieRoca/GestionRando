@@ -120,18 +120,16 @@ public class GestionRandonnee {
     public void cloturerSondage (String idRando, String idDate){
         Rando r = (Rando) rr.findById(idRando).get();
         Vote v = new Vote();
-        ArrayList<Vote> votes =  r.getVote();
-
+        ArrayList<Vote> votetosave =  new ArrayList<Vote>();
         for(Vote vCourant : r.getVote()) {
             if(vCourant.getId().equals(idDate)){
-                v = vCourant;
-                r.setParticipants(v.getVotants());
-            }else{
-                votes.remove(vCourant);
+                votetosave.add(vCourant);
+                v=vCourant;
             }
         }
         
-        r.setVote(votes);
+        r.setParticipants(v.getVotants());
+        r.setVote(votetosave);
                 
         r.setStatut(Statut.SONDAGE_CLOS);
         rr.save(r);
@@ -260,13 +258,14 @@ public class GestionRandonnee {
             v = vCourant;
         
         if(r.getStatut() == Statut.SONDAGE_CLOS){
-            if(v.getDate().after(new Date()) && estCoutValide(coutRando)){
+            if(v.getDate().before(new Date()) && estCoutValide(coutRando)){
                 r.setStatut(Statut.ORGA_CLOS);
-                debitTresorerie(coutRando);
+                //debitTresorerie(coutRando);
             }else
                 r.setStatut(Statut.ANNULEE);
         }   
-        
+        System.out.println("coutvalide"+estCoutValide(coutRando));
+        System.out.println("date"+v.getDate().after(new Date()));
         rr.save(r);
     }
     
@@ -288,6 +287,8 @@ public class GestionRandonnee {
         
         // URI locale
         String uri = "http://127.0.0.1:5050/";
+        
+        //@toask Quentin resttemplate
         
         Client client = ClientBuilder.newClient();
         //WebTarget wt = client.target(uri + "&q=" + contrat);
