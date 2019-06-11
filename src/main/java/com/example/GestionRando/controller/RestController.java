@@ -5,12 +5,10 @@
  */
 package com.example.GestionRando.controller;
 
-import com.example.GestionRando.Entities.Membre;
 import com.example.GestionRando.Entities.Rando;
 import com.example.GestionRando.Entities.Vote;
 import com.example.GestionRando.services.GestionRandonnee;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,15 +27,15 @@ public class RestController {
     
     //RANDO / ok
     @RequestMapping(value="/create/{idm}", method = RequestMethod.POST)
-    public void createRando (@RequestBody Rando randoACree, @PathVariable Membre idm){
+    public boolean createRando (@RequestBody Rando randoACree, @PathVariable Long idm){
         Iterator votes = randoACree.getVote().iterator();
-        gr.creerRando(randoACree.getTitre(), randoACree.getNiveau(), ((Vote) votes.next()).getDate(), ((Vote) votes.next()).getDate(), ((Vote) votes.next()).getDate(),idm, randoACree.getLieu(), randoACree.getCf(), randoACree.getCv(), randoACree.getDist());
+        return gr.creerRando(randoACree.getTitre(), randoACree.getNiveau(), ((Vote) votes.next()).getDate(), ((Vote) votes.next()).getDate(), ((Vote) votes.next()).getDate(),idm, randoACree.getLieu(), randoACree.getCf(), randoACree.getCv(), randoACree.getDist());
     }
     
     //RANDO / ok
     @RequestMapping(value="/{idr}/voter/{idd}", method = RequestMethod.PATCH)
-    public void voter (@RequestBody Membre membre, @PathVariable String idd, @PathVariable String idr){
-        gr.voter(membre, idd, idr);
+    public boolean voter (@RequestBody Long membre, @PathVariable String idd, @PathVariable String idr){
+        return gr.voter(membre, idd, idr);
     }
     
     //RANDO / ok
@@ -48,26 +46,25 @@ public class RestController {
     
     //RANDO /ok
     @RequestMapping(value="/{idr}/inscription", method = RequestMethod.PATCH)
-    public void inscription (@RequestBody Membre membre, @PathVariable String idr){
-        System.out.println("com.example.GestionRando.controller.RestController.inscription()"+idr);
-        gr.inscrire(idr, membre.getIdMembre());
+    public boolean inscription (@RequestBody Long membre, @PathVariable String idr){
+        return gr.inscrire(idr, membre);
     }
     
     //RANDO / get des rando où l'on peut s'incrire : ouverte à l'inscription et à notre niveau / OK
     @RequestMapping(value="/dispo/{idm}", method = RequestMethod.GET)
-    public ArrayList<Rando> randoDispo (@PathVariable String idm){
+    public ArrayList<Rando> randoDispo (@PathVariable Long idm){
        return gr.randoDispo(idm);
     }
     
     //RANDO / get rando où on est TL / OK
     @RequestMapping(value="/teamleader/{idm}", method = RequestMethod.GET)
-    public ArrayList<Rando> randoTL (@PathVariable String idm){
+    public ArrayList<Rando> randoTL (@PathVariable Long idm){
         return gr.randoTL(idm);
     }
     
     //RANDO / get rando où on a voté  / ok
     @RequestMapping(value="/vote/{idm}", method = RequestMethod.GET)
-    public ArrayList<Rando> randoVote (@PathVariable String idm){
+    public ArrayList<Rando> randoVote (@PathVariable Long idm){
         return gr.randoVote(idm);
     }
     

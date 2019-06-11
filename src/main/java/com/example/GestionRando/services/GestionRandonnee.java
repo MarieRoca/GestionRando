@@ -5,11 +5,9 @@
  */
 package com.example.GestionRando.services;
 
-import com.example.GestionRando.Entities.Membre;
 import com.example.GestionRando.Entities.Rando;
 import com.example.GestionRando.Entities.Rando.Statut;
 import com.example.GestionRando.Entities.Vote;
-import com.example.GestionRando.repositories.MembreRepo;
 import com.example.GestionRando.repositories.RandoRepo;
 import com.example.GestionRando.repositories.VoteRepo;
 import java.util.ArrayList;
@@ -17,12 +15,6 @@ import java.util.Date;
 import java.util.Iterator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -33,8 +25,6 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class GestionRandonnee {
 
-    @Autowired
-    MembreRepo mr;
     @Autowired
     VoteRepo vr;
     @Autowired
@@ -59,12 +49,15 @@ public class GestionRandonnee {
      * @param cv Coûts Variables (correspond au coût par participant) de la
      * randonnée
      */
-    public void creerRando(String titre, float niveau, Date date1, Date date2, Date date3, Membre teamLeader, String lieu, float dist, float cf, float cv) {
+    public boolean creerRando(String titre, float niveau, Date date1, Date date2, Date date3, Long teamLeader, String lieu, float dist, float cf, float cv) {
         //Vérification TL niveau 1,5x supérieur à distance getRando & Coût fixe bien inférieur au budget de l'asso
-        if (estTeamLeaderApte(dist, teamLeader) && estCoutValide(cf)) {
+        if (estMembreApte(dist, teamLeader, "TeamLeader") && estCoutValide(cf)) {
             //je créé ma rando
             Rando r = new Rando(titre, niveau, date1, date2, date3, teamLeader, lieu, dist, cf, cv);
             rr.save(r);
+            return true;
+        }else{
+            return false;
         }
 
         //il a le niveau / assez d'argent
@@ -80,37 +73,43 @@ public class GestionRandonnee {
      * @param idDate Date pour laquelle le membre vote pour la randonnée
      * @param idRando Randonnée pour laquelle le membre choisi une date
      */
-    public void voter(Membre jeanClaude, String idDate, String idRando) {
+    public boolean voter(Long jeanClaude, String idDate, String idRando) {
         Rando r = (Rando) rr.findById(idRando).get();
-        Vote v = new Vote();
-        ArrayList<Vote> votes = r.getVote();
-        for (Vote vCourant : votes) {
-            if (vCourant.getId().equals(idDate)) {
-                v = vCourant;
-            }
-        }
-
-        //Est-ce que jean claude a déjà voté pour cette randonnée ?
-        boolean aVote = false;
-        for (Vote vCour : r.getVote()) {
-            for (Membre m : vCour.getVotants()) {
-                if (m.getIdMembre().equals(jeanClaude.getIdMembre())) {
-                    aVote = true;
+        if (estMembreApte(r.getDist(), jeanClaude, "Membre")) {
+            Vote v = new Vote();
+            ArrayList<Vote> votes = r.getVote();
+            for (Vote vCourant : votes) {
+                if (vCourant.getId().equals(idDate)) {
+                    v = vCourant;
                 }
             }
-        }
-        //S'il a pas déjà voté, on prend son vote
-        if (!aVote) {
-            ArrayList<Membre> votants = v.getVotants();
-            votants.add(jeanClaude);
 
-            votes.remove(v);
-            v.setVotants(votants);
-            votes.add(v);
-            r.setVote(votes);
+            //Est-ce que jean claude a déjà voté pour cette randonnée ?
+            boolean aVote = false;
+            for (Vote vCour : r.getVote()) {
+                for (Long m : vCour.getVotants()) {
+                    if (m.equals(jeanClaude)) {
+                        aVote = true;
+                    }
+                }
+            }
+            //S'il a pas déjà voté, on prend son vote
+            if (!aVote) {
+                ArrayList<Long> votants = v.getVotants();
+                votants.add(jeanClaude);
+
+                votes.remove(v);
+                v.setVotants(votants);
+                votes.add(v);
+                r.setVote(votes);
+            }
+
+            rr.save(r);
+            return true;
+        }else{
+            return false;
         }
 
-        rr.save(r);
     }
 
     //Confirmer
@@ -156,18 +155,23 @@ public class GestionRandonnee {
      * @param idMembre Identifiant du membre souhaitant s'inscrire à la
      * randonnée
      */
-    public void inscrire(String idRando, String idMembre) {
-        Membre m = (Membre) mr.findById(idMembre).get();
+    public boolean inscrire(String idRando, Long idMembre) {
         Rando r = (Rando) rr.findById(idRando).get();
-        //test rando statut
-        if (r.getStatut() == Rando.Statut.SONDAGE_CLOS) {
-            //test niveau participant
-            //@todo en regle et apte
-            ArrayList<Membre> p = r.getParticipants();
-            p.add(m);
-            r.setParticipants(p);
+        if (estMembreApte(r.getDist(), idMembre, "Membre")) {
+            //test rando statut
+            if (r.getStatut() == Rando.Statut.SONDAGE_CLOS) {
+                //test niveau participant
+                //@todo en regle et apte
+                ArrayList<Long> p = r.getParticipants();
+                p.add(idMembre);
+                r.setParticipants(p);
+            }
+            rr.save(r);
+            return true;
+        } else {
+            return false;
         }
-        rr.save(r);
+
     }
 
     //Rando dispo
@@ -180,12 +184,11 @@ public class GestionRandonnee {
      * @param idm id du Membre souhaitant avoir la liste des randos dispo
      * @return ArrayList des randonnées disponibles
      */
-    public ArrayList<Rando> randoDispo(String idm) {
+    public ArrayList<Rando> randoDispo(Long idm) {
         //lister les randos dispo pour un membre en fonction de son niveau, 
         //du nb de place restantes, et du fait qu'elle soit dispo et pas 
         //passée => statut pas ORGA_CLOS, pas ANNULEE
-        Membre m = (Membre) mr.findById(idm).get();
-        float niveau = getMembreNiveau(m);
+        float niveau = getMembreNiveau(idm);
         ArrayList<Rando> randoDispo = new ArrayList<Rando>();
         Iterator randos = rr.findAll().iterator();
         Rando rCourant;
@@ -218,14 +221,13 @@ public class GestionRandonnee {
      * @return ArrayList des randonnées pour lesquelles le membre est team
      * leader
      */
-    public ArrayList<Rando> randoTL(String idm) {
-        Membre m = (Membre) mr.findById(idm).get();
+    public ArrayList<Rando> randoTL(Long idm) {
         ArrayList<Rando> randoTL = new ArrayList<Rando>();
         Iterator randos = rr.findAll().iterator();
         Rando rCourant;
         while (randos.hasNext()) {
             rCourant = (Rando) randos.next();
-            if (rCourant.getTeamLeader().getIdMembre().equals(m.getIdMembre())) {
+            if (rCourant.getTeamLeader().equals(idm)) {
                 randoTL.add(rCourant);
             }
         }
@@ -241,15 +243,15 @@ public class GestionRandonnee {
      * lesquelles il a voté
      * @return ArrayList des randonnées pour lesquelles le membre a voté
      */
-    public ArrayList<Rando> randoVote(String idm) {
+    public ArrayList<Rando> randoVote(Long idm) {
         ArrayList<Rando> randoVote = new ArrayList<Rando>();
         Iterator randos = rr.findAll().iterator();
         Rando rCourant;
         while (randos.hasNext()) {
             rCourant = (Rando) randos.next();
             for (Vote v : rCourant.getVote()) {
-                for (Membre m : v.getVotants()) {
-                    if (m.getIdMembre().equals(idm)) {
+                for (Long m : v.getVotants()) {
+                    if (m.equals(idm)) {
                         randoVote.add(rCourant);
                         break;
                     }
@@ -316,8 +318,7 @@ public class GestionRandonnee {
         RestTemplate restTemplate = new RestTemplate();
 
         Float response = restTemplate.getForObject(uri + param, Float.class);
-        System.out.println("com.example.GestionRando.services.GestionRandonnee.estCoutValide()"+response);
-        
+
         //tester supérieur au cout
         return response >= cout;
 
@@ -330,12 +331,20 @@ public class GestionRandonnee {
      *
      * @param distanceRando Distance de la randonnée
      * @param jeanClaude Membre pour qui il faut vérifier s'il est apte à être
-     * team leader
+     * @param roleBon le role souhaité pour effectuer l'action team leader
      * @return
      */
-    public boolean estTeamLeaderApte(float distanceRando, Membre jeanClaude) {
+    public boolean estMembreApte(float distanceRando, Long jeanClaude, String role) {
         //tester si le niveau du TL est bien au moins 1,5x supérieur à la distance de la rando
-        return getMembreNiveau(jeanClaude) * (1.5) >= distanceRando;
+        boolean niveau = getMembreNiveau(jeanClaude) * (1.5) >= distanceRando;
+        boolean certificat = getMembreCertificat(jeanClaude);
+        boolean aRole = getMembreRole(jeanClaude, role);
+
+        if (niveau && certificat && aRole) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -344,14 +353,14 @@ public class GestionRandonnee {
      * @param jeanClaude Membre pour qui on souhaite connaitre le niveau
      * @return Un décimal représentant le niveau du membre
      */
-    public float getMembreNiveau(Membre jeanClaude) {
+    public float getMembreNiveau(Long jeanClaude) {
         //retourne le niveau du membre
         // URI locale
         String param = "/niveau/";
 
         RestTemplate restTemplate = new RestTemplate();
 
-        Float response = restTemplate.getForObject(uri + param + jeanClaude.getIdMembre(), Float.class);
+        Float response = restTemplate.getForObject(uri + param + jeanClaude, Float.class);
         return response;
     }
 
@@ -369,6 +378,42 @@ public class GestionRandonnee {
         RestTemplate restTemplate = new RestTemplate();
 
         restTemplate.put(uri + param, coutRando);
+    }
+
+    /**
+     * Appel rest qui retoune un boolean en fonction de la validité du
+     * certificat
+     *
+     * @param jeanClaude
+     * @return
+     */
+    private boolean getMembreCertificat(Long jeanClaude) {
+        //retourne le niveau du membre
+        // URI locale
+        String param = "/apte/";
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        boolean response = restTemplate.getForObject(uri + param + jeanClaude, boolean.class);
+        
+        return response;
+    }
+
+    /**
+     * *
+     * Appel rest qui retroune le niveau le plus élevé d'un membre
+     *
+     * @param jeanClaude
+     * @return
+     */
+    private boolean getMembreRole(Long jeanClaude, String role) {
+        String param = "/role/";
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        boolean response = restTemplate.getForObject(uri + param + jeanClaude + "/" + role, boolean.class);
+
+        return response;
     }
 
 }

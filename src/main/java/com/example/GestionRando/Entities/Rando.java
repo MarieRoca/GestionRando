@@ -24,8 +24,8 @@ public class Rando {
     float niveau, cv, cf, dist;
     
     ArrayList<Vote> vote;
-    ArrayList<Membre> participants;
-    Membre teamLeader;
+    ArrayList<Long> participants;
+    Long teamLeader;
 
     public enum Statut{
         PLAN, //en cours de vote
@@ -40,7 +40,7 @@ public class Rando {
         
     }
 
-    public Rando(String titre, float niveau, Date date1, Date date2, Date date3, Membre teamLeader, String lieu, float dist, float cf, float cv) {
+    public Rando(String titre, float niveau, Date date1, Date date2, Date date3, Long teamLeader, String lieu, float dist, float cf, float cv) {
         this.titre = titre;
         this.lieu = lieu;
         this.dist = dist;
@@ -52,7 +52,7 @@ public class Rando {
         this.vote.add(new Vote(date2));
         this.vote.add(new Vote(date3));
         this.statut = Statut.PLAN;
-        this.participants = new ArrayList<Membre>();
+        this.participants = new ArrayList<Long>();
         this.teamLeader = teamLeader;
     }
 
@@ -116,11 +116,11 @@ public class Rando {
         this.vote = vote;
     }
 
-    public ArrayList<Membre> getParticipants() {
+    public ArrayList<Long> getParticipants() {
         return participants;
     }
 
-    public void setParticipants(ArrayList<Membre> participants) {
+    public void setParticipants(ArrayList<Long> participants) {
         this.participants = participants;
     }
 
@@ -132,11 +132,11 @@ public class Rando {
         this.statut = statut;
     }
 
-    public Membre getTeamLeader() {
+    public Long getTeamLeader() {
         return teamLeader;
     }
 
-    public void setTeamLeader(Membre teamLeader) {
+    public void setTeamLeader(Long teamLeader) {
         this.teamLeader = teamLeader;
     }
     

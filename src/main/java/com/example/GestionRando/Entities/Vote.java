@@ -24,7 +24,7 @@ public class Vote {
     
     Date date;
     
-    ArrayList<Membre> votants;
+    ArrayList<Long> votants;
     
     public Vote() {
         
@@ -33,7 +33,7 @@ public class Vote {
     public Vote(Date date) {
         this.id = ""+new ObjectId();
         this.date = date;
-        this.votants = new ArrayList<Membre>();
+        this.votants = new ArrayList<Long>();
     }
 
     public String getId() {
@@ -44,11 +44,11 @@ public class Vote {
         return date;
     }
 
-    public ArrayList<Membre> getVotants() {
+    public ArrayList<Long> getVotants() {
         return votants;
     }
 
-    public void setVotants(ArrayList<Membre> votants) {
+    public void setVotants(ArrayList<Long> votants) {
         this.votants = votants;
     }
     
