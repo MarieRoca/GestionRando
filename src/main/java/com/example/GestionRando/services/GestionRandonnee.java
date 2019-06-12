@@ -18,7 +18,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Classe permettant de gérer les randonnées de l'association
+ * Classe permettant de gérer les randonnées du club comme décrit ci-dessous.
+ * La gestion et la planification des randonnées a pour but :
+ * Ø Pouvoir créer des randonnées au sein de la plateforme WEB. Cette action 
+ * est réservée aux Team Leaders
+ * Ø Pouvoir voter pour une des trois dates possibles pour une randonnée.
+ * Ø 
+ * Ø 
+ * Ø 
+ * Ø 
+ * Ø 
  *
  * @author Emma/Hugo/Marie
  */
@@ -335,12 +344,14 @@ public class GestionRandonnee {
      * @return
      */
     public boolean estMembreApte(float distanceRando, Long jeanClaude, String role) {
-        //tester si le niveau du TL est bien au moins 1,5x supérieur à la distance de la rando
-        boolean niveau = getMembreNiveau(jeanClaude) * (1.5) >= distanceRando;
+        boolean niveau = getMembreNiveau(jeanClaude) >= distanceRando;
         boolean certificat = getMembreCertificat(jeanClaude);
         boolean aRole = getMembreRole(jeanClaude, role);
 
         if (niveau && certificat && aRole) {
+            //tester si le niveau du TL est bien au moins 1,5x supérieur à la distance de la rando
+            if(role.equals("TeamLeader"))
+                return getMembreNiveau(jeanClaude) * (1.5) >= distanceRando;
             return true;
         } else {
             return false;
