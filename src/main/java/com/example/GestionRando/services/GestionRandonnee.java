@@ -63,6 +63,39 @@ public class GestionRandonnee {
             return false;
         }
     }
+    
+    /**
+     * Méthode permettant de savoir si un membre a déjà voté pour cette randonnée
+     * 
+     * @param jeanClaude Membre pour qui il faut chercher le vote
+     * @param idRando Rando pour laquelle on veut vérifier les votes
+     * @return True si le membre a voté
+     */
+    public boolean aVote(Long jeanClaude, String idRando){
+        Rando r = (Rando) rr.findById(idRando).get();
+        //Est-ce que jean claude a déjà voté pour cette randonnée ?
+        boolean aVote = false;
+        for (Vote vCour : r.getVote()) {
+            for (Long m : vCour.getVotants()) {
+                if (m.equals(jeanClaude)) {
+                    aVote = true;
+                }
+            }
+        }
+        return aVote;
+    }
+    
+    /**
+     * Méthode permettant de savoir si un membre s'est déjà inscrit pour cette randonnée
+     * 
+     * @param jeanClaude Membre pour qui il faut chercher l'inscription
+     * @param idRando Rando pour laquelle on veut vérifier les inscriptions
+     * @return True si le membre est inscrit
+     */
+    public boolean estInscrit(Long jeanClaude, String idRando){
+        Rando r = (Rando) rr.findById(idRando).get();
+        return r.getParticipants().contains(jeanClaude);
+    }
 
     /**
      * Méthode permettant à un membre de voter pour une date pour une randonnée
@@ -85,17 +118,8 @@ public class GestionRandonnee {
             }
 
             //Est-ce que jean claude a déjà voté pour cette randonnée ?
-            boolean aVote = false;
-            for (Vote vCour : r.getVote()) {
-                for (Long m : vCour.getVotants()) {
-                    if (m.equals(jeanClaude)) {
-                        aVote = true;
-                    }
-                }
-            }
-
             //S'il a pas déjà voté, on prend son vote
-            if (!aVote) {
+            if (!aVote(jeanClaude, idRando) && v.getVotants().size() < this.nbPlacesRando) {
                 ArrayList<Long> votants = v.getVotants();
                 votants.add(jeanClaude);
 
@@ -193,6 +217,9 @@ public class GestionRandonnee {
         }
         return randoDispo;
     }
+    
+    //Rando dispo mais où j'ai pas voté
+    
 
     /**
      * Méthode permettant de retourner une randonnée à partir de son identifiant
@@ -375,7 +402,7 @@ public class GestionRandonnee {
         try {
             //débite le cout de la rando de la trésorerie
             // URI locale treso
-            URI param = new URI(uri + "/treso");
+            URI param = new URI(uri + "/treso/");
             
             //= restTemplate.exchange(url, HttpMethod.GET, request, Foo.class);
             RestTemplate restTemplate = new RestTemplate();
