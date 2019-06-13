@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.example.GestionRando.controller;
 
 import com.example.GestionRando.Entities.Rando;
@@ -17,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
- *
- * @author marieroca
+ * Rest Controller pour la gestion des randonnée du club sur une application WEB
+ * @author Emma/Hugo/Marie
  */
 @org.springframework.web.bind.annotation.RestController
 public class RestController {

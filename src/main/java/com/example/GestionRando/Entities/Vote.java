@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.example.GestionRando.Entities;
 
 import java.util.ArrayList;
@@ -14,8 +9,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
- *
- * @author marieroca
+ * Entity représentant notre objet Vote présent au sein d'une Randonnée.
+ * 
+ * @author Emma/Hugo/Marie
  */
 @Document(collection="Rando")
 public class Vote {
@@ -26,28 +22,52 @@ public class Vote {
     
     ArrayList<Long> votants;
     
+    /**
+     * Constructeur vide
+     */
     public Vote() {
         
     }
     
+    /**
+     * Constructeur de vote
+     * 
+     * @param date Date proposée dans le sondage
+     */
     public Vote(Date date) {
         this.id = ""+new ObjectId();
         this.date = date;
         this.votants = new ArrayList<Long>();
     }
 
+    /**
+     * Getter sur l'identifiant du vote
+     * @return Identifiant du vote
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Getter sur la date du vote
+     * @return Date du vote
+     */
     public Date getDate() {
         return date;
     }
 
+    /**
+     * Getter sur la liste des votants sur le vote
+     * @return Liste des votants sur le vote
+     */
     public ArrayList<Long> getVotants() {
         return votants;
     }
 
+    /**
+     * Setter sur la liste des votants sur le vote
+     * @param votants Nouvelle liste des votants sur le vote
+     */
     public void setVotants(ArrayList<Long> votants) {
         this.votants = votants;
     }

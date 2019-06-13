@@ -8,7 +8,6 @@ package com.example.GestionRando;
 import com.example.GestionRando.Entities.Rando;
 import com.example.GestionRando.Entities.Vote;
 import com.example.GestionRando.repositories.RandoRepo;
-import com.example.GestionRando.repositories.VoteRepo;
 import com.example.GestionRando.services.GestionRandonnee;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,25 +17,22 @@ import org.springframework.stereotype.Component;
 
 /**
  *
- * @author emma
+ * @author Emma/Hugo/Marie
  */
 @Component
 @ConditionalOnProperty(name = "app.db-init", havingValue = "true")
 public class DbInit implements CommandLineRunner {
     private RandoRepo rr;
-    private VoteRepo vr;
     @Autowired
     GestionRandonnee gr;
     
-    public DbInit(RandoRepo rr, VoteRepo vr){
+    public DbInit(RandoRepo rr){
         this.rr = rr;
-        this.vr = vr;
     }
     
     @Override
     public void run(String... strings) throws Exception {
         this.rr.deleteAll();
-        this.vr.deleteAll();
         float niveau = 10;
         float f = 2;
         
