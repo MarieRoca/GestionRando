@@ -154,13 +154,15 @@ public class GestionRandonnee {
         ArrayList<Vote> votetosave = new ArrayList<Vote>();
         for (Vote vCourant : r.getVote()) {
             if (vCourant.getId().equals(idDate)) {
-                votetosave.add(vCourant);
                 v = vCourant;
+                votetosave.add(vCourant);
+                
             }
         }
 
         r.setParticipants(v.getVotants());
         r.setVote(votetosave);
+        
 
         r.setStatut(Statut.SONDAGE_CLOS);
         rr.save(r);
@@ -237,7 +239,7 @@ public class GestionRandonnee {
         while (randos.hasNext()) {
             rCourant = (Rando) randos.next();
             if (rCourant.getNiveau() <= niveau && rCourant.getParticipants().size() <= this.nbPlacesRando
-                    && rCourant.getStatut() != Statut.ORGA_CLOS && rCourant.getStatut() != Statut.ANNULEE && !aVote(idm, rCourant.getId())) {
+                    && rCourant.getStatut() == Statut.PLAN && !aVote(idm, rCourant.getId())) {
                 randoDispo.add(rCourant);
             }
         }
@@ -263,7 +265,33 @@ public class GestionRandonnee {
         while (randos.hasNext()) {
             rCourant = (Rando) randos.next();
             if (rCourant.getNiveau() <= niveau && rCourant.getParticipants().size() <= this.nbPlacesRando
-                    && rCourant.getStatut() != Statut.ORGA_CLOS && rCourant.getStatut() != Statut.ANNULEE && !estInscrit(idm, rCourant.getId())) {
+                    && rCourant.getStatut() == Statut.SONDAGE_CLOS && !estInscrit(idm, rCourant.getId())) {
+                randoDispo.add(rCourant);
+            }
+        }
+        return randoDispo;
+    }
+    
+    /**
+     * Méthode permettant de lister les randonnées auxquelles un membre s'est inscrit.
+     * Une randonnée est disponible si : 
+     * Ø le membre a un niveau suffisant pour participer 
+     * Ø il reste des places 
+     * Ø le statut de la randonnée est "en planification" ou "sondage clos"
+     * Ø le membre est inscrit
+     * 
+     * @param idm Identifiant du Membre souhaitant avoir la liste des randos inscrivables
+     * @return 
+     */
+    public ArrayList<Rando> randoInscrit(Long idm) {
+        float niveau = getMembreNiveau(idm);
+        ArrayList<Rando> randoDispo = new ArrayList<Rando>();
+        Iterator randos = rr.findAll().iterator();
+        Rando rCourant;
+        while (randos.hasNext()) {
+            rCourant = (Rando) randos.next();
+            if (rCourant.getNiveau() <= niveau && rCourant.getParticipants().size() <= this.nbPlacesRando
+                    && rCourant.getStatut() == Statut.SONDAGE_CLOS && estInscrit(idm, rCourant.getId())) {
                 randoDispo.add(rCourant);
             }
         }
@@ -311,22 +339,55 @@ public class GestionRandonnee {
      * @return ArrayList des randonnées pour lesquelles le membre a voté
      */
     public ArrayList<Rando> randoVote(Long idm) {
-        ArrayList<Rando> randoVote = new ArrayList<Rando>();
+        float niveau = getMembreNiveau(idm);
+        ArrayList<Rando> randoDispo = new ArrayList<Rando>();
         Iterator randos = rr.findAll().iterator();
         Rando rCourant;
         while (randos.hasNext()) {
             rCourant = (Rando) randos.next();
-            for (Vote v : rCourant.getVote()) {
-                for (Long m : v.getVotants()) {
-                    if (m.equals(idm)) {
-                        randoVote.add(rCourant);
-                        break;
-                    }
-                }
+            if (rCourant.getNiveau() <= niveau && rCourant.getParticipants().size() <= this.nbPlacesRando
+                    && rCourant.getStatut() == Statut.PLAN && aVote(idm, rCourant.getId())) {
+                randoDispo.add(rCourant);
             }
         }
-        return randoVote;
+        return randoDispo;
     }
+    
+    public ArrayList<Rando> randoAChercher(Long idm, String switche) {
+        float niveau = getMembreNiveau(idm);
+        ArrayList<Rando> randoDispo = new ArrayList<Rando>();
+        Iterator randos = rr.findAll().iterator();
+        Rando rCourant;
+        while (randos.hasNext()) {
+            rCourant = (Rando) randos.next();
+            if (rCourant.getNiveau() <= niveau && rCourant.getParticipants().size() <= this.nbPlacesRando)
+                switch(switche){
+                    case "inscrit" :
+                        if(rCourant.getStatut() == Statut.SONDAGE_CLOS && estInscrit(idm, rCourant.getId()))
+                            randoDispo.add(rCourant);
+                        break;
+                    case "pasInscrit" :
+                        if(rCourant.getStatut() == Statut.SONDAGE_CLOS && !estInscrit(idm, rCourant.getId()))
+                            randoDispo.add(rCourant);
+                        break;
+                    case "vote":
+                        if(rCourant.getStatut() == Statut.PLAN && aVote(idm, rCourant.getId()))
+                            randoDispo.add(rCourant);
+                        break;
+                    case "pasVote" :
+                        if(rCourant.getStatut() == Statut.PLAN && !aVote(idm, rCourant.getId()))
+                            randoDispo.add(rCourant);
+                        break;
+                    default :
+                        break;
+                }
+            }
+        
+        return randoDispo;
+    }
+    
+    
+    
 
     /**
      * Méthode permettant de cloturer l'organisation de la randonnée. La cloture
@@ -369,7 +430,7 @@ public class GestionRandonnee {
      *
      * @param rando Randonnée pour laquelle on teste si le membre est apte
      * @param jeanClaude Membre pour qui il faut vérifier s'il est apte à être
-     * @param roleBon le role souhaité pour effectuer l'action team leader
+     * @param role le role souhaité pour effectuer l'action team leader
      * @return
      */
     public boolean estMembreApte(Rando rando, Long jeanClaude, String role) {

@@ -45,10 +45,10 @@ public class RestController {
         return gr.inscrire(idr, membre);
     }
     
-    //RANDO / get des rando où l'on peut s'incrire : ouverte à l'inscription et à notre niveau / OK
-    @RequestMapping(value="/dispo/{idm}", method = RequestMethod.GET)
-    public ArrayList<Rando> randoDispo (@PathVariable Long idm){
-       return gr.randoDispo(idm);
+    //RANDO / 
+    @RequestMapping(value="/randoAChercher/{idm}/{switche}", method = RequestMethod.GET)
+    public ArrayList<Rando> randoAChercher (@PathVariable Long idm, @PathVariable String switche ){
+       return gr.randoAChercher(idm, switche);
     }
     
     //RANDO / get rando où on est TL / OK
