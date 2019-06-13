@@ -179,7 +179,7 @@ public class GestionRandonnee {
     public boolean inscrire(String idRando, Long idMembre) {
         Rando r = (Rando) rr.findById(idRando).get();
         //Normalement testé aussi dans le front avec randoDispo()
-        if (estMembreApte(r, idMembre, "Membre")) {
+        if (estMembreApte(r, idMembre, "Membre") && !estInscrit(idMembre, idRando)) {
             //test rando statut : la date doit être choisie par le TL => statut doit être à sondage clos
             if (r.getStatut() == Rando.Statut.SONDAGE_CLOS) {
                 ArrayList<Long> p = r.getParticipants();
@@ -218,8 +218,57 @@ public class GestionRandonnee {
         return randoDispo;
     }
     
-    //Rando dispo mais où j'ai pas voté
+    /**
+     * Méthode permettant de lister les randonnées disponibles au vote pour un membre.
+     * Une randonnée est disponible si : 
+     * Ø le membre a un niveau suffisant pour participer 
+     * Ø il reste des places 
+     * Ø le statut de la randonnée est "en planification" ou "sondage clos"
+     * Ø le membre n'a pas déjà voté
+     * 
+     * @param idm Identifiant du Membre souhaitant avoir la liste des randos votables
+     * @return 
+     */
+    public ArrayList<Rando> randoPasVote(Long idm) {
+        float niveau = getMembreNiveau(idm);
+        ArrayList<Rando> randoDispo = new ArrayList<Rando>();
+        Iterator randos = rr.findAll().iterator();
+        Rando rCourant;
+        while (randos.hasNext()) {
+            rCourant = (Rando) randos.next();
+            if (rCourant.getNiveau() <= niveau && rCourant.getParticipants().size() <= this.nbPlacesRando
+                    && rCourant.getStatut() != Statut.ORGA_CLOS && rCourant.getStatut() != Statut.ANNULEE && !aVote(idm, rCourant.getId())) {
+                randoDispo.add(rCourant);
+            }
+        }
+        return randoDispo;
+    }
     
+    /**
+     * Méthode permettant de lister les randonnées disponibles à l'inscription pour un membre.
+     * Une randonnée est disponible si : 
+     * Ø le membre a un niveau suffisant pour participer 
+     * Ø il reste des places 
+     * Ø le statut de la randonnée est "en planification" ou "sondage clos"
+     * Ø le membre n'est pas déjà inscrit
+     * 
+     * @param idm Identifiant du Membre souhaitant avoir la liste des randos inscrivables
+     * @return 
+     */
+    public ArrayList<Rando> randoPasInscrit(Long idm) {
+        float niveau = getMembreNiveau(idm);
+        ArrayList<Rando> randoDispo = new ArrayList<Rando>();
+        Iterator randos = rr.findAll().iterator();
+        Rando rCourant;
+        while (randos.hasNext()) {
+            rCourant = (Rando) randos.next();
+            if (rCourant.getNiveau() <= niveau && rCourant.getParticipants().size() <= this.nbPlacesRando
+                    && rCourant.getStatut() != Statut.ORGA_CLOS && rCourant.getStatut() != Statut.ANNULEE && !estInscrit(idm, rCourant.getId())) {
+                randoDispo.add(rCourant);
+            }
+        }
+        return randoDispo;
+    }
 
     /**
      * Méthode permettant de retourner une randonnée à partir de son identifiant
