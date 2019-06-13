@@ -2,8 +2,6 @@ package com.example.GestionRando.Entities;
 
 import java.util.ArrayList;
 import java.util.Date;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

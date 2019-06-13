@@ -1,12 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.example.GestionRando;
 
 import com.example.GestionRando.Entities.Rando;
-import com.example.GestionRando.Entities.Vote;
 import com.example.GestionRando.repositories.RandoRepo;
 import com.example.GestionRando.services.GestionRandonnee;
 import java.util.Date;
@@ -51,8 +45,8 @@ public class DbInit implements CommandLineRunner {
         
         /*System.out.println("com.example.GestionRando.DbInit.run()"+gr.getMembreNiveau(m1));
         System.out.println("com.example.GestionRando.DbInit.run()"+gr.estCoutValide(100));
-        System.out.println("com.example.GestionRando.DbInit.run()"+gr.estCoutValide(1002));
-        gr.debitTresorerie(100);*/
+        System.out.println("com.example.GestionRando.DbInit.run()"+gr.estCoutValide(1002));*/
+        gr.debitTresorerie(100);
         
         System.out.println(" -- Database has been initialized");
     }

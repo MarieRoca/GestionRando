@@ -4,24 +4,26 @@ import com.example.GestionRando.Entities.Rando;
 import com.example.GestionRando.Entities.Rando.Statut;
 import com.example.GestionRando.Entities.Vote;
 import com.example.GestionRando.repositories.RandoRepo;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Classe permettant de gérer les randonnées du club comme décrit ci-dessous.
- * La gestion et la planification des randonnées a pour but :
- * Ø Pouvoir créer des randonnées au sein de la plateforme WEB. Cette action 
- * est réservée aux Team Leaders
- * Ø Pouvoir voter pour une des trois dates possibles pour une randonnée.
- * Ø Pouvoir choisir une date parmis les 3 proposées au sondage. Cette action 
- * est réservée aux Team Leaders
- * Ø S'inscrire pour une randonnée planifiée.
- * Ø Cloturer l'organisation d'une randonnée. Cette action est réservée aux 
- * Team Leaders
+ * Classe permettant de gérer les randonnées du club comme décrit ci-dessous. La
+ * gestion et la planification des randonnées a pour but : Ø Pouvoir créer des
+ * randonnées au sein de la plateforme WEB. Cette action est réservée aux Team
+ * Leaders Ø Pouvoir voter pour une des trois dates possibles pour une
+ * randonnée. Ø Pouvoir choisir une date parmis les 3 proposées au sondage.
+ * Cette action est réservée aux Team Leaders Ø S'inscrire pour une randonnée
+ * planifiée. Ø Cloturer l'organisation d'une randonnée. Cette action est
+ * réservée aux Team Leaders
  *
  * @author Emma/Hugo/Marie
  */
@@ -35,8 +37,8 @@ public class GestionRandonnee {
     String uri = "http://127.0.0.1:8182/EnMarcheMembre";
 
     /**
-     * Création d'un randonnée au sein de l'application Va Marcher.
-     * Cette action n'est possible que par un TeamLeader : vérifié dans le front
+     * Création d'une randonnée au sein de l'application Va Marcher. Cette
+     * action n'est possible que par un TeamLeader : vérifié dans le front
      *
      * @param titre Titre de la randonnée
      * @param niveau Niveau cible de la randonnée
@@ -57,7 +59,7 @@ public class GestionRandonnee {
             //je créé ma rando et save en base
             rr.save(r);
             return true;
-        }else{
+        } else {
             return false;
         }
     }
@@ -91,7 +93,7 @@ public class GestionRandonnee {
                     }
                 }
             }
-            
+
             //S'il a pas déjà voté, on prend son vote
             if (!aVote) {
                 ArrayList<Long> votants = v.getVotants();
@@ -105,7 +107,7 @@ public class GestionRandonnee {
 
             rr.save(r);
             return true;
-        }else{
+        } else {
             return false;
         }
 
@@ -114,8 +116,8 @@ public class GestionRandonnee {
     /**
      * Méthode permettant de cloturer un sondage : le statut de la randonnée
      * passe à "Sondage Clos" Les membres ne peuvent plus voter, les membres
-     * ayant voté pour la date choisie sont inscris automatiquements.
-     * Cette action n'est possible que par le TeamLeader : vérifié dans le front
+     * ayant voté pour la date choisie sont inscris automatiquements. Cette
+     * action n'est possible que par le TeamLeader : vérifié dans le front
      *
      * @param idRando Identifiant de la randonnée pour laquelle le TeamLeader
      * cloture le vote
@@ -170,10 +172,9 @@ public class GestionRandonnee {
 
     /**
      * Méthode permettant de lister les randonnées disponibles pour un membre.
-     * Une randonnée est disponible si : 
-     * Ø le membre a un niveau suffisant pour participer 
-     * Ø il reste des places 
-     * Ø le statut de la randonnée est "en planification" ou "sondage clos"
+     * Une randonnée est disponible si : Ø le membre a un niveau suffisant pour
+     * participer Ø il reste des places Ø le statut de la randonnée est "en
+     * planification" ou "sondage clos"
      *
      * @param idm id du Membre souhaitant avoir la liste des randos dispo
      * @return ArrayList des randonnées disponibles
@@ -185,7 +186,7 @@ public class GestionRandonnee {
         Rando rCourant;
         while (randos.hasNext()) {
             rCourant = (Rando) randos.next();
-            if (rCourant.getNiveau() <= niveau && rCourant.getParticipants().size() <= this.nbPlacesRando 
+            if (rCourant.getNiveau() <= niveau && rCourant.getParticipants().size() <= this.nbPlacesRando
                     && rCourant.getStatut() != Statut.ORGA_CLOS && rCourant.getStatut() != Statut.ANNULEE) {
                 randoDispo.add(rCourant);
             }
@@ -253,12 +254,12 @@ public class GestionRandonnee {
 
     /**
      * Méthode permettant de cloturer l'organisation de la randonnée. La cloture
-     * n'est possible que si le sondage a été cloturé. 
-     * Si la date de la randonnée est passée ou si son coût total (coût fixe + 
-     * coûts variables) est supérieur à la trésorerie de l'association, la 
-     * randonnée est annulée (statut de la randonnée : ANNULEE).
-     * Une fois l'organisation close, les membres ne peuvent plus s'inscrire
-     * Cette action n'est possible que par le TeamLeader : vérifié dans le front
+     * n'est possible que si le sondage a été cloturé. Si la date de la
+     * randonnée est passée ou si son coût total (coût fixe + coûts variables)
+     * est supérieur à la trésorerie de l'association, la randonnée est annulée
+     * (statut de la randonnée : ANNULEE). Une fois l'organisation close, les
+     * membres ne peuvent plus s'inscrire Cette action n'est possible que par le
+     * TeamLeader : vérifié dans le front
      *
      * @param idRando Identifiant de la randonnée à cloturer
      */
@@ -281,14 +282,14 @@ public class GestionRandonnee {
         }
         rr.save(r);
     }
-    
+
     /**
-     * Méthode qui nous permet de savoir si un membre est apte pour une randonnée. 
-     * Un membre est apte si :
-     * Ø Il a un niveau supérieur ou égal à celui de la randonnée
-     * Ø S'il est "Apte", c'est-à-dire qu'il a fournit un certificat médical valable
-     * Un Team Leader est apte si, en plus d'être un membre apte, si il a un niveau à
-     * minima 1,5* supérieur à la distance de la randonnée
+     * Méthode qui nous permet de savoir si un membre est apte pour une
+     * randonnée. Un membre est apte si : Ø Il a un niveau supérieur ou égal à
+     * celui de la randonnée Ø S'il est "Apte", c'est-à-dire qu'il a fournit un
+     * certificat médical valable Un Team Leader est apte si, en plus d'être un
+     * membre apte, si il a un niveau à minima 1,5* supérieur à la distance de
+     * la randonnée
      *
      * @param rando Randonnée pour laquelle on teste si le membre est apte
      * @param jeanClaude Membre pour qui il faut vérifier s'il est apte à être
@@ -302,8 +303,9 @@ public class GestionRandonnee {
 
         if (niveau && certificat && aRole) {
             //tester si le niveau du TL est bien au moins 1,5x supérieur à la distance de la rando
-            if(role.equals("TeamLeader"))
+            if (role.equals("TeamLeader")) {
                 return getMembreNiveau(jeanClaude) * (1.5) >= rando.getDist();
+            }
             return true;
         } else {
             return false;
@@ -313,30 +315,31 @@ public class GestionRandonnee {
     //STATISTIQUES
     //Total d’en-cours budgétaire ==> dans gestion membre (les + + les -)
     /**
-     * Méthode permettant de connaitre le total des coûts des randonnées. 
-     * On ne prend en compte que les randonnées avec une organisation cloturée :
-     * elles sont planifiées et sures de se dérouler ou elles se sont déjà déroulées.
+     * Méthode permettant de connaitre le total des coûts des randonnées. On ne
+     * prend en compte que les randonnées avec une organisation cloturée : elles
+     * sont planifiées et sures de se dérouler ou elles se sont déjà déroulées.
      * Cette action n'est possible que par le Président : vérifié dans le front
-     * 
+     *
      * @return Un décimal représentant le total des coûts des randonnées
      */
-    public float totalCoutRandonnees(){
+    public float totalCoutRandonnees() {
         //ArrayList<Rando> randos = new ArrayList<Rando>();
         float totalCout = 0F;
         Iterator randos = rr.findAll().iterator();
         Rando rCourant;
         while (randos.hasNext()) {
             rCourant = (Rando) randos.next();
-            if(rCourant.getStatut().equals(Statut.ORGA_CLOS))
+            if (rCourant.getStatut().equals(Statut.ORGA_CLOS)) {
                 totalCout += rCourant.getCf() + rCourant.getCv() * rCourant.getParticipants().size();
+            }
         }
         return totalCout;
     }
-    
+
     //APPELS REST POUR COMMUNIQUER AVEC GESTION MEMBRE
     /**
-     * Méthode qui nous permet de savoir si le coût d'une randonnée rentre
-     * bien dans le budget de l'association
+     * Méthode qui nous permet de savoir si le coût d'une randonnée rentre bien
+     * dans le budget de l'association
      *
      * @param cout Coût d'une randonnée (Coût fixe à la création et Coût fixe +
      * coûts variables à la cloture)
@@ -369,17 +372,22 @@ public class GestionRandonnee {
      * @param coutRando Montant à débiter (coût de la randonnée)
      */
     public void debitTresorerie(float coutRando) {
-        //débite le cout de la rando de la trésorerie
-        // URI locale treso
-        String param = "/treso";
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        restTemplate.put(uri + param, coutRando);
+        try {
+            //débite le cout de la rando de la trésorerie
+            // URI locale treso
+            URI param = new URI(uri + "/treso");
+            
+            //= restTemplate.exchange(url, HttpMethod.GET, request, Foo.class);
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.put(param, coutRando);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(GestionRandonnee.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
-     * Méthode vérifiant la validité du certificat médical d'un membre de GestionMembre
+     * Méthode vérifiant la validité du certificat médical d'un membre de
+     * GestionMembre
      *
      * @param jeanClaude
      * @return true si le membre est "apte" d'un point de vu médical
@@ -392,9 +400,8 @@ public class GestionRandonnee {
     }
 
     /**
-     * Méthode retroune le niveau le plus élevé d'un membre.
-     * L'ordre des rôles est le suivant : 
-     * Membre &lt TeamLeader &lt Secrétariat &lt Président
+     * Méthode retroune le niveau le plus élevé d'un membre. L'ordre des rôles
+     * est le suivant : Membre &lt TeamLeader &lt Secrétariat &lt Président
      *
      * @param jeanClaude
      * @return
