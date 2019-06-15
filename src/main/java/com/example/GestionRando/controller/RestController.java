@@ -45,22 +45,22 @@ public class RestController {
         return gr.inscrire(idr, membre);
     }
     
-    //RANDO / 
+    //RANDO / ok
     @RequestMapping(value="/randoAChercher/{idm}/{switche}", method = RequestMethod.GET)
     public ArrayList<Rando> randoAChercher (@PathVariable Long idm, @PathVariable String switche ){
        return gr.randoAChercher(idm, switche);
+    }
+    
+    //RANDO / ok
+    @RequestMapping(value="/randoAnnulee", method = RequestMethod.GET)
+    public ArrayList<Rando> randoAnnulee (){
+       return gr.randoAnnulee();
     }
     
     //RANDO / get rando où on est TL / OK
     @RequestMapping(value="/teamleader/{idm}", method = RequestMethod.GET)
     public ArrayList<Rando> randoTL (@PathVariable Long idm){
         return gr.randoTL(idm);
-    }
-    
-    //RANDO / get rando où on a voté  / ok
-    @RequestMapping(value="/vote/{idm}", method = RequestMethod.GET)
-    public ArrayList<Rando> randoVote (@PathVariable Long idm){
-        return gr.randoVote(idm);
     }
     
     //RANDO / get une rando / ok
