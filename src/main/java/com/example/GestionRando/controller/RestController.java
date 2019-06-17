@@ -35,8 +35,8 @@ public class RestController {
     
     //RANDO / ok
     @RequestMapping(value="/{idr}/cloturer/{idd}", method = RequestMethod.PATCH)
-    public void clotSondage (@PathVariable String idr, @PathVariable String idd){
-        gr.cloturerSondage(idr,idd);
+    public boolean clotSondage (@PathVariable String idr, @PathVariable String idd){
+        return gr.cloturerSondage(idr,idd);
     }
     
     //RANDO /ok
@@ -71,8 +71,8 @@ public class RestController {
     
     //RANDO /ok
     @RequestMapping(value="/{idr}/cloturer", method = RequestMethod.PATCH)
-    public void cloturer (@PathVariable String idr){
-        gr.cloturer(idr);
+    public boolean cloturer (@PathVariable String idr){
+        return gr.cloturer(idr);
     }
     
 }

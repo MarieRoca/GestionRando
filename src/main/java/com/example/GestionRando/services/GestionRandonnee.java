@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -150,7 +151,7 @@ public class GestionRandonnee {
      * @param idDate Identifiant du vote (donc la date) que le TeamLeader a
      * choisi
      */
-    public void cloturerSondage(String idRando, String idDate) {
+    public boolean cloturerSondage(String idRando, String idDate) {
         Rando r = (Rando) rr.findById(idRando).get();
         Vote v = new Vote();
         ArrayList<Vote> votetosave = new ArrayList<Vote>();
@@ -167,6 +168,7 @@ public class GestionRandonnee {
 
         r.setStatut(Statut.SONDAGE_CLOS);
         rr.save(r);
+        return true;
     }
 
     /**
@@ -314,7 +316,7 @@ public class GestionRandonnee {
      *
      * @param idRando Identifiant de la randonnée à cloturer
      */
-    public void cloturer(String idRando) {
+    public boolean cloturer(String idRando) {
         Rando r = (Rando) rr.findById(idRando).get();
         float coutRando = r.getCf() + r.getParticipants().size() * r.getCv();
 
@@ -322,7 +324,6 @@ public class GestionRandonnee {
         for (Vote vCourant : r.getVote()) {
             v = vCourant;
         }
-
         if (r.getStatut() == Statut.SONDAGE_CLOS) {
             if (v.getDate().before(new Date()) && estCoutValide(coutRando)) {
                 r.setStatut(Statut.ORGA_CLOS);
@@ -332,6 +333,7 @@ public class GestionRandonnee {
             }
         }
         rr.save(r);
+        return true;
     }
 
     /**
@@ -420,22 +422,26 @@ public class GestionRandonnee {
     /**
      * Méthode permettant de débiter la trésorerie de l'association
      *
-     * @param coutRando Montant à débiter (coût de la randonnée)
+     * @param debit Montant à débiter (coût de la randonnée)
      */
-    public void debitTresorerie(float coutRando) {
+    
+    public void debitTresorerie(float debit) {
         try {
             //débite le cout de la rando de la trésorerie
             // URI locale treso
-            URI param = new URI(uri + "/treso/");
-
-            //= restTemplate.exchange(url, HttpMethod.GET, request, Foo.class);
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.put(param, coutRando);
+            //String param = uri + ;
+            URI param = new URI(uri+"/treso/debit");
+            
+            RestTemplate rt = new RestTemplate();
+            rt.put(param, debit);
+            
         } catch (URISyntaxException ex) {
             Logger.getLogger(GestionRandonnee.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    
+ 
     /**
      * Méthode vérifiant la validité du certificat médical d'un membre de
      * GestionMembre

@@ -46,7 +46,7 @@ public class DbInit implements CommandLineRunner {
         /*System.out.println("com.example.GestionRando.DbInit.run()"+gr.getMembreNiveau(m1));
         System.out.println("com.example.GestionRando.DbInit.run()"+gr.estCoutValide(100));
         System.out.println("com.example.GestionRando.DbInit.run()"+gr.estCoutValide(1002));*/
-        //gr.debitTresorerie(100);
+        gr.debitTresorerie(100);
         
         System.out.println(" -- Database has been initialized");
     }
