@@ -234,12 +234,9 @@ public class GestionRandonnee {
     /**
      * *
      * Méthode permettant de lister les randonnées pour lesquelles un membre
-     * donnée :
-     * - celles où il n'a pas encore voté
-     * - celles où il a voté 
-     * - celles où il est pas encore inscrit 
-     * - celles où il est inscrit 
-     * - celles où qui ont été effectuées par le membre
+     * donnée : - celles où il n'a pas encore voté - celles où il a voté -
+     * celles où il est pas encore inscrit - celles où il est inscrit - celles
+     * où qui ont été effectuées par le membre
      *
      * @param idm id du membre
      * @param switche paramètre de l'affichage de la liste
@@ -287,9 +284,10 @@ public class GestionRandonnee {
         }
         return randoDispo;
     }
-    
+
     /**
      * Méthode permettant de lister les randonnées annulées
+     *
      * @return ArrayList de randonnées annulées
      */
     public ArrayList<Rando> randoAnnulee() {
@@ -424,24 +422,21 @@ public class GestionRandonnee {
      *
      * @param debit Montant à débiter (coût de la randonnée)
      */
-    
     public void debitTresorerie(float debit) {
         try {
             //débite le cout de la rando de la trésorerie
             // URI locale treso
             //String param = uri + ;
-            URI param = new URI(uri+"/treso/debit");
-            
+            URI param = new URI(uri + "/treso/debit");
+
             RestTemplate rt = new RestTemplate();
             rt.put(param, debit);
-            
+
         } catch (URISyntaxException ex) {
             Logger.getLogger(GestionRandonnee.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    
- 
     /**
      * Méthode vérifiant la validité du certificat médical d'un membre de
      * GestionMembre
@@ -469,4 +464,23 @@ public class GestionRandonnee {
         boolean response = restTemplate.getForObject(uri + param + jeanClaude + "/" + role, boolean.class);
         return response;
     }
-}
+
+    /**
+     * Méthode retourne le nombre de randonnée prositionnée
+     * @return le nombre de rando positionné
+     */
+    public int nbRandoPositionnees() {
+        ArrayList<Rando> randoDispo = new ArrayList<Rando>();
+        Iterator randos = rr.findAll().iterator();
+        Rando rCourant;
+        while (randos.hasNext()) {
+            rCourant = (Rando) randos.next();
+            if (rCourant.getStatut() == Statut.SONDAGE_CLOS) {
+                randoDispo.add(rCourant);
+            }
+        }
+        return randoDispo.size();
+    }
+    
+    
+ }

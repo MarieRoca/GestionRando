@@ -4,6 +4,7 @@ import com.example.GestionRando.Entities.Rando;
 import com.example.GestionRando.Entities.Vote;
 import com.example.GestionRando.services.GestionRandonnee;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -73,6 +74,15 @@ public class RestController {
     @RequestMapping(value="/{idr}/cloturer", method = RequestMethod.PATCH)
     public boolean cloturer (@PathVariable String idr){
         return gr.cloturer(idr);
+    }
+    
+    //PRESIDENT @TOASK
+    @RequestMapping(value="/statistiques", method = RequestMethod.GET)
+    public HashMap statistique (){
+        HashMap<String, Float> stat = new HashMap<>();
+        stat.put("CoutRando", (float) gr.totalCoutRandonnees());
+        stat.put("NbRandoPositionnees", (float) gr.nbRandoPositionnees());
+        return stat;
     }
     
 }
