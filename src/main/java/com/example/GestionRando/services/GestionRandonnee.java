@@ -323,7 +323,7 @@ public class GestionRandonnee {
             v = vCourant;
         }
         if (r.getStatut() == Statut.SONDAGE_CLOS) {
-            if (v.getDate().before(new Date()) && estCoutValide(coutRando)) {
+            if (v.getDate().after(new Date()) && estCoutValide(coutRando)) {
                 r.setStatut(Statut.ORGA_CLOS);
                 debitTresorerie(coutRando);
             } else {
